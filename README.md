@@ -41,7 +41,7 @@ records to be processed:
 class Maintenace::ProcessRecords
   def self.perform(record_ids, user_id)
     # Construct the pace object. This also creates the 0% marker.
-    pace = Pace.new(scope: [:user, user_id], total: record_ids.count)
+    pace = Redis::Progress.new(scope: [:user, user_id], total: record_ids.count)
     
     # Start processing the records!
     Record.where(id: record_ids).find_each do |record|
@@ -57,7 +57,7 @@ end
 To query the pace of jobs for a specific scope: 
 
 ```ruby
-> ResquePace.jobs(scope: ["user", user_id]
+> Redis::Progress.jobs(scope: ["user", user_id]
 #=> {
   "4bacc11a-dda3-405e-b0aa-be8678d16037" => {
     :percent=>94, 
