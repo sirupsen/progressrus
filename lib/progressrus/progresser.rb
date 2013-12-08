@@ -12,6 +12,7 @@ module Progressrus
       @count        = 0
       @started_at   = Time.now
       @persisted_at = Time.now - @interval - 1
+      @completed    = false
       @store        = store
     end
 
@@ -24,7 +25,11 @@ module Progressrus
       @store.persist(scope, id, to_serializeable)
       @persisted_at = Time.now
     end
-    alias_method :complete, :persist
+
+    def complete
+      @completed = true
+      persist
+    end
 
     private
     def to_serializeable
@@ -32,6 +37,7 @@ module Progressrus
         count:      count,
         total:      total,
         started_at: started_at,
+        completed:  @completed
       }.merge(params)
     end
 
