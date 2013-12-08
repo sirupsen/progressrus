@@ -48,7 +48,7 @@ class MaintenacegProcessRecords
       record.do_expensive_things
 
       # Does a single tick, updates Redis when 1. and 2. hold.
-      pace.tick!
+      pace.tick
     end
   end
 end
