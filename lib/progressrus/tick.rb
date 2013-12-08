@@ -16,6 +16,10 @@ module Progressrus
       @params[:started_at]
     end
 
+    def completed?
+      @params[:complete]
+    end
+
     def params
       @params
     end
