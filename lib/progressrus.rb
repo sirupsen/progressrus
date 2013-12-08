@@ -1,10 +1,10 @@
 require 'json'
 require 'securerandom'
 require 'redis'
-require_relative "store/base"
-require_relative "store/redis"
-require_relative "progresser"
-require_relative "tick"
+require_relative "progressrus/store/base"
+require_relative "progressrus/store/redis"
+require_relative "progressrus/progresser"
+require_relative "progressrus/tick"
 
 module Progressrus
   def self.scope(scope, store = @@store)
