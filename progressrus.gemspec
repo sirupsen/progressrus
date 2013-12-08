@@ -4,13 +4,13 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'progressrus/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "resque-pace"
+  spec.name          = "progressrus"
   spec.version       = Progressrus::VERSION
   spec.authors       = ["Simon Eskildsen"]
   spec.email         = ["sirup@sirupsen.com"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
-  spec.homepage      = ""
+  spec.description   = %q{Monitor the progress of remote, long-running jobs.}
+  spec.summary       = %q{Monitor the progress of remote, long-running jobs.}
+  spec.homepage      = "https://github.com/Sirupsen/progressrus"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
