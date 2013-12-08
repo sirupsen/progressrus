@@ -14,7 +14,8 @@ module Progressrus
         redis.hset(key(progress.scope), progress.id, {
           count:      progress.count,
           total:      progress.total,
-          started_at: progress.started_at
+          started_at: progress.started_at,
+          job:        progress.job
         }.to_json)
         redis.expire(key(progress.scope), expire)
       end

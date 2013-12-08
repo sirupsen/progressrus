@@ -8,7 +8,8 @@ class RedisStoreTest < Minitest::Unit::TestCase
       id: "oemg",
       count: 30,
       total: 100,
-      started_at: Time.now - 10
+      started_at: Time.now - 10,
+      job: "boom"
     )
   end
 
@@ -23,6 +24,7 @@ class RedisStoreTest < Minitest::Unit::TestCase
     assert_instance_of Progressrus::Tick, tick
     assert_equal 30, tick.count
     assert_equal 100, tick.total
+    assert_equal "boom", tick.job
   end
 
   def test_persist_twice_updates_object

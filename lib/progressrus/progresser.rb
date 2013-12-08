@@ -1,12 +1,13 @@
 module Progressrus
   class Progresser
-    attr_reader :total, :scope, :count, :total, :started_at, :id, :store
+    attr_reader :total, :scope, :count, :total, :started_at, :id, :store, :job
 
     def initialize(options, store = Progressrus.store)
       @scope        = options[:scope].map(&:to_s)
       @total        = options[:total].to_i
       @id           = options.fetch(:id, SecureRandom.uuid).to_s
       @interval     = options.fetch(:interval, 2).to_i
+      @job          = options[:job]
       @count        = 0
       @started_at   = Time.now
       @persisted_at = Time.now - @interval - 1

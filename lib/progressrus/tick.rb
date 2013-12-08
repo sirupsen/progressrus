@@ -16,6 +16,10 @@ module Progressrus
       @values[:started_at]
     end
 
+    def job
+      @values[:job]
+    end
+
     def elapsed
       # Make absolutely sure we don't divide by zero,
       # this is extremely unlikely but..
