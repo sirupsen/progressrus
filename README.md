@@ -1,12 +1,15 @@
-# Resque::Pace
+# Redis::Progress
 
-`Resque::Pace` provides progress status of long-running Resque jobs. The
-progress is stored in Redis.
+`Redis::Progress` provides progress status of long-running jobs. The
+progress is stored in Redis. Think of it as a progress bar where instead of
+flushing the progress to `stdout`, it's stored in Redis. It can be used with a
+background job engine or just about anything where you need to show the progress
+in a different location.
 
-It works by the job instructing `Resque::Pace` about the total number of records
-to processed. For each processed record, the job calls `tick`. `Resque::Pace`
-figures out when it's appropriate to update the progress of the job. Two
-conditions must hold for `Resque::Pace` to update the job:
+It works by instructing `Redis::Progress` about the finishing point. For each
+progress, the job calls `tick`. `Redis::Progress` figures out when it's
+appropriate to update the progress of the job. Two conditions must hold for
+`Redis::Progress` to update the job:
 
 1. 2 seconds or more should have passed since last time the status was updated.
    This prevents a job processing relatively e.g. 100 records to hit Redis 100
@@ -14,10 +17,10 @@ conditions must hold for `Resque::Pace` to update the job:
    value.
 2. When the percentage changes, i.e. `10%` to `11%`.
 
-`Resque::Pace` keeps track of the jobs in some scope. This could be a `user_id`.
+`Redis::Progress` keeps track of the jobs in some scope. This could be a `user_id`.
 This makes it easy to find the jobs and their progress for a specific user.
 
-Once one of the two conditions above are true, `Resque::Pace` will update Redis
+Once one of the two conditions above are true, `Redis::Progress` will update Redis
 with the progress of the job. The key for a user with `user_id` `3421` would be:
 `resque:pace:3421`. This Redis key is a Redis hash where the Redis `job_id` is
 the key and the value is a `json` object with information about the progress,
@@ -31,13 +34,11 @@ redis> HGETALL resque:pace:user:3421
     -0500\",\"finished_at\":null}""
 ```
 
-Jobs are instrumented by creating a `Pace` object with the `scope` and `total`
-amount of records to be processed:
+Instrument by creating a `Pace` object with the `scope` and `total` amount of
+records to be processed:
 
 ```ruby
 class Maintenace::ProcessRecords
-  include Resque::Pace
-
   def self.perform(record_ids, user_id)
     # Construct the pace object. This also creates the 0% marker.
     pace = Pace.new(scope: [:user, user_id], total: record_ids.count)
