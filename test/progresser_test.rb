@@ -33,7 +33,7 @@ class ProgresserTest < Minitest::Unit::TestCase
   end
 
   def test_tick_sets_supplied_id
-    progresser = Progressrus::Progresser.new(id: 1239)
+    progresser = Progressrus::Progresser.new(id: 1239, scope: ["wut"])
     assert_equal "1239", progresser.id
   end
 end
