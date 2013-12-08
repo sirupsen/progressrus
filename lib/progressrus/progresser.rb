@@ -1,6 +1,7 @@
 module Progressrus
   class Progresser
-    attr_reader :total, :scope, :count, :total, :started_at, :id, :store, :job, :params
+    attr_reader :scope, :count, :total, :started_at, :id, :store, :job, :params
+    attr_accessor :total
 
     def initialize(params, store = Progressrus.store)
       @scope        = params.delete(:scope).map(&:to_s)
