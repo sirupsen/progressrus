@@ -5,10 +5,10 @@ class RedisStoreTest < Minitest::Unit::TestCase
     @store = Progressrus::Store::Redis.new
     Progressrus.store = @store
     @progress = Progressrus::Progresser.new(
-      {scope: ["walrus", "1234"],
+      scope: ["walrus", "1234"],
       id: "oemg",
-      total: 100},
-      { name: "oemg-test" }
+      total: 100,
+      name: "oemg-test"
     )
   end
 

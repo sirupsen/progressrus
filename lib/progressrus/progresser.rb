@@ -2,11 +2,11 @@ module Progressrus
   class Progresser
     attr_reader :total, :scope, :count, :total, :started_at, :id, :store, :job, :params
 
-    def initialize(options, params = {}, store = Progressrus.store)
-      @scope        = options[:scope].map(&:to_s)
-      @total        = options[:total].to_i
-      @id           = options.fetch(:id, SecureRandom.uuid).to_s
-      @interval     = options.fetch(:interval, 2).to_i
+    def initialize(params, store = Progressrus.store)
+      @scope        = params.delete(:scope).map(&:to_s)
+      @total        = params.delete(:total).to_i
+      @id           = (params.delete(:id) || SecureRandom.uuid).to_s
+      @interval     = (params.delete(:interval) || 2).to_i
       @params       = params
       @count        = 0
       @started_at   = Time.now
