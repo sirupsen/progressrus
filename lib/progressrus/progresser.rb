@@ -24,6 +24,7 @@ module Progressrus
       @store.persist(scope, id, to_serializeable)
       @persisted_at = Time.now
     end
+    alias_method :complete, :persist
 
     private
     def to_serializeable
