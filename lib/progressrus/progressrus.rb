@@ -46,20 +46,20 @@ class Progressrus
   end
 
   class Tick
-    def initialize(options)
-      @options = options
+    def initialize(values)
+      @values = values
     end
 
     def count
-      @options[:count]
+      @values[:count]
     end
 
     def total
-      @options[:total]
+      @values[:total]
     end
 
     def started_at
-      @options[:started_at]
+      @values[:started_at]
     end
 
     def elapsed

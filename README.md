@@ -23,26 +23,24 @@ This makes it easy to find the jobs and their progress for a specific user.
 
 Once one of the two conditions above are true, `Progressrus` will update the
 data store with the progress of the job. The key for a user with `user_id`
-`3421` would be: `resque:pace:3421`. For the Redis data store, the key is a
+`3421` would be: `progressrus:user:3421`. For the Redis data store, the key is a
 Redis hash where the Redis `job_id` is the key and the value is a `json` object
 with information about the progress, i.e.: 
 
 ```redis
-redis> HGETALL resque:pace:user:3421
+redis> HGETALL progressrus:user:3421
 1) "4bacc11a-dda3-405e-b0aa-be8678d16037"
-2) "{\"percent\":94,\"count\":94,\"total\":100,\"started_at\":\"2013-12-08
-    10:53:41 -0500\",\"estimated_finished_at\":\"2013-12-08 10:55:19
-    -0500\",\"finished_at\":null}""
+2) "{"count\":94,\"total\":100,\"started_at\":\"2013-12-08 10:53:41 -0500\"}"
 ```
 
-Instrument by creating a `Progressrus` object with the `scope` and `total` amount of
+Instrument by creating a `Progresser` object with the `scope` and `total` amount of
 records to be processed:
 
 ```ruby
 class MaintenacegProcessRecords
   def self.perform(record_ids, user_id)
     # Construct the pace object. This also creates the 0% marker.
-    pace = Progressrus.new(scope: [:user, user_id], total: record_ids.count)
+    pace = Progressrus::Progresser.new(scope: [:user, user_id], total: record_ids.count)
     
     # Start processing the records!
     Record.where(id: record_ids).find_each do |record|
@@ -60,16 +58,13 @@ To query for the progress of jobs for a specific scope:
 ```ruby
 > Progressrus.scope(["user", user_id])
 #=> {
-  # Auto-generated id for the Job by Progressrus, this could also come from
-  # Resque, Delayed Job, Sidekiq, or whatever when creating the Progressrus
-  # object
-  "4bacc11a-dda3-405e-b0aa-be8678d16037" => {
-    :percent=>94, 
-    :count=>94,
-    :total=>100, 
-    :started_at=>2013-12-08 10:53:41 -0500, 
-    :estimated_finished_at=>2013-12-08 10:55:19 -0500,
-    :finished_at=>nil
-  }
+  [#<Progressrus::Tick:0x007f55e8c939d0 @values={:count=>1, :total=>20,
+  :started_at=>"2013-12-08 20:04:59 +0000"}>,
+  #<Progressrus::Tick:0x007f55e8c93818 @values={:count=>1, :total=>50,
+  :started_at=>"2013-12-08 20:04:59 +0000"}>]
 }
 ```
+
+The `Tick` objects contain useful methods such as `#percentage` to return how
+many percent done the job is and `#eta` to return a `Time` object estimation of
+when the job will be complete.
