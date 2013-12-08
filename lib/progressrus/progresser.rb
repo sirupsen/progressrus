@@ -1,13 +1,13 @@
 module Progressrus
   class Progresser
-    attr_reader :total, :scope, :count, :total, :started_at, :id, :store, :job
+    attr_reader :total, :scope, :count, :total, :started_at, :id, :store, :job, :params
 
-    def initialize(options, store = Progressrus.store)
+    def initialize(options, params = {}, store = Progressrus.store)
       @scope        = options[:scope].map(&:to_s)
       @total        = options[:total].to_i
       @id           = options.fetch(:id, SecureRandom.uuid).to_s
       @interval     = options.fetch(:interval, 2).to_i
-      @job          = options[:job]
+      @params       = params
       @count        = 0
       @started_at   = Time.now
       @persisted_at = Time.now - @interval - 1
@@ -19,10 +19,18 @@ module Progressrus
       persist if outdated?
     end
 
-    private
     def persist
-      @store.persist(self)
+      @store.persist(scope, id, to_serializeable)
       @persisted_at = Time.now
+    end
+
+    private
+    def to_serializeable
+      {
+        count:      count,
+        total:      total,
+        started_at: started_at,
+      }.merge(params)
     end
 
     def outdated?

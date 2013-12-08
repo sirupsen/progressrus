@@ -1,23 +1,23 @@
 module Progressrus
   class Tick
-    def initialize(values)
-      @values = values
+    def initialize(params)
+      @params = params
     end
 
     def count
-      @values[:count]
+      @params[:count]
     end
 
     def total
-      @values[:total]
+      @params[:total]
     end
 
     def started_at
-      @values[:started_at]
+      @params[:started_at]
     end
 
-    def job
-      @values[:job]
+    def params
+      @params
     end
 
     def elapsed

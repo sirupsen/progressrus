@@ -10,14 +10,9 @@ module Progressrus
         @prefix = prefix
       end
 
-      def persist(progress)
-        redis.hset(key(progress.scope), progress.id, {
-          count:      progress.count,
-          total:      progress.total,
-          started_at: progress.started_at,
-          job:        progress.job
-        }.to_json)
-        redis.expire(key(progress.scope), expire)
+      def persist(scope, id, serializeable_hash)
+        redis.hset(key(scope), id, serializeable_hash.to_json)
+        redis.expire(key(scope), expire)
       end
 
       def scope(scope)
