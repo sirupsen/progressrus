@@ -4,7 +4,7 @@
 progress is stored in Redis. Think of it as a progress bar where instead of
 flushing the progress to `stdout`, it's stored in Redis. It can be used with a
 background job engine or just about anything where you need to show the progress
-in a different location.
+in a different location than the long-running operation.
 
 It works by instructing `RedisProgress` about the finishing point. For each
 progress, the job calls `tick`. `RedisProgress` figures out when it's
@@ -34,7 +34,7 @@ redis> HGETALL resque:pace:user:3421
     -0500\",\"finished_at\":null}""
 ```
 
-Instrument by creating a `Pace` object with the `scope` and `total` amount of
+Instrument by creating a `RedisProgress` object with the `scope` and `total` amount of
 records to be processed:
 
 ```ruby
@@ -54,12 +54,14 @@ class MaintenacegProcessRecords
 end
 ```
 
-To query the pace of jobs for a specific scope: 
+To query for the progress of jobs for a specific scope: 
 
 ```ruby
-> RedisProgress.jobs(scope: ["user", user_id]
+> RedisProgress.scope(["user", user_id])
 #=> {
-  # Auto-generated id for the Job by RedisProgress
+  # Auto-generated id for the Job by RedisProgress, this could also come from
+  # Resque, Delayed Job, Sidekiq, or whatever when creating the RedisProgress
+  # object
   "4bacc11a-dda3-405e-b0aa-be8678d16037" => {
     :percent=>94, 
     :count=>94,
