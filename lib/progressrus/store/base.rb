@@ -6,6 +6,14 @@ module Progressrus
       def persist(progressrus)
         raise NotImplementedError
       end
+
+      def scope(scope)
+        raise NotImplementedError
+      end
+
+      def flush(progressrus)
+        raise NotImplementedError
+      end
     end
   end
 end
