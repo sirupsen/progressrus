@@ -59,6 +59,7 @@ To query the pace of jobs for a specific scope:
 ```ruby
 > RedisProgress.jobs(scope: ["user", user_id]
 #=> {
+  # Auto-generated id for the Job by RedisProgress
   "4bacc11a-dda3-405e-b0aa-be8678d16037" => {
     :percent=>94, 
     :count=>94,
