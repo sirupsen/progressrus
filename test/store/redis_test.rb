@@ -34,4 +34,12 @@ class RedisStoreTest < Minitest::Unit::TestCase
 
     assert_equal 31, tick.count
   end
+
+  def test_expire_key
+    @store.expire = 1
+    @store.persist(@progress)
+    sleep 1
+    assert @store.scope(@progress.scope).empty?, 
+      "Expected key to have expired after 1 second."
+  end
 end

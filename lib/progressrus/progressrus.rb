@@ -88,10 +88,14 @@ class Progressrus
     end
 
     class Redis < Base
+      attr_accessor :expire
+      attr_reader :redis
+
       KEY_PREFIX = "progressrus"
 
-      def initialize(redis = ::Redis.new)
+      def initialize(redis = ::Redis.new, expire = 60 * 30)
         @redis = redis
+        @expire = expire
       end
 
       def persist(progress)
@@ -100,6 +104,7 @@ class Progressrus
           total:      progress.total,
           started_at: progress.started_at
         }.to_json)
+        @redis.expire(key(progress.scope), @expire)
       end
 
       def scope(scope)
