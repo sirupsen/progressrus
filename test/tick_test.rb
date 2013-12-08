@@ -11,7 +11,7 @@ class TickTest < Minitest::Unit::TestCase
   end
 
   def test_elapsed_returns_seconds_since_started_at
-    assert_equal 30, @tick.elapsed
+    assert_equal 30, @tick.elapsed.to_i
   end
 
   def test_eta_returns_estimated_finish_time

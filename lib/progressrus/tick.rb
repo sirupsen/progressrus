@@ -17,7 +17,9 @@ module Progressrus
     end
 
     def elapsed
-      (Time.now - started_at).to_i
+      # Make absolutely sure we don't divide by zero,
+      # this is extremely unlikely but..
+      (Time.now - started_at) + 1e-6
     end
 
     def percentage
