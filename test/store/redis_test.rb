@@ -80,5 +80,6 @@ class RedisStoreTest < Minitest::Unit::TestCase
     response = @store.get(@progress.scope, 'oemg')
 
     assert_equal @progress.to_serializeable.to_json, response
+    assert_equal nil, @store.get(@progress.scope, 'zomg')
   end
 end
