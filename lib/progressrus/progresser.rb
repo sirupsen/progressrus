@@ -37,7 +37,8 @@ module Progressrus
         total:        total,
         started_at:   started_at,
         completed_at: completed_at,
-        id:           id
+        id:           id,
+        scope:        scope
       }.merge(params)
     end
 

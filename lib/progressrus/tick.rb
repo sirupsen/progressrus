@@ -5,7 +5,7 @@ module Progressrus
     end
 
     def name
-      @params[:name]
+      @params[:name] || "#{@params[:scope].join(":")}:#{@params[:id]}"
     end
 
     def count

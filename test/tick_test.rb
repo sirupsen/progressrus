@@ -3,7 +3,7 @@ require_relative "test_helper"
 class TickTest < Minitest::Unit::TestCase
   def setup
     @started_at = Time.now - 30
-    @tick = Progressrus::Tick.new(count: 30, total: 100, started_at: @started_at)
+    @tick = Progressrus::Tick.new(count: 30, total: 100, started_at: @started_at, scope: ["walrus"], id: "what")
   end
 
   def test_percentage_returns_percentage_completed
@@ -17,5 +17,9 @@ class TickTest < Minitest::Unit::TestCase
   def test_eta_returns_estimated_finish_time
     estimated_finish_time = (@started_at.strftime("%S").to_i + 100) % 60
     assert_equal estimated_finish_time, @tick.eta.strftime("%S").to_i
+  end
+
+  def test_name_returns_scope_and_id_if_not_set
+    assert_equal "walrus:what", @tick.name
   end
 end
