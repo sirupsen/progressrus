@@ -12,8 +12,9 @@ module Progressrus
       @count        = 0
       @started_at   = Time.now
       @persisted_at = Time.now - @interval - 1
-      @completed    = false
       @store        = store
+
+      @params[:completed_at] = nil
     end
 
     def tick(ticks = 1)
@@ -27,7 +28,7 @@ module Progressrus
     end
 
     def complete
-      @completed = true
+      @params[:completed_at] = Time.now
       persist
     end
 
@@ -36,8 +37,7 @@ module Progressrus
       {
         count:      count,
         total:      total,
-        started_at: started_at,
-        completed:  @completed
+        started_at: started_at
       }.merge(params)
     end
 

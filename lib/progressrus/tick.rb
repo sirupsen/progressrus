@@ -4,6 +4,10 @@ module Progressrus
       @params = params
     end
 
+    def name
+      @params[:name]
+    end
+
     def count
       @params[:count]
     end
@@ -12,12 +16,18 @@ module Progressrus
       @params[:total]
     end
 
+    def completed_at
+      completed = @params[:completed_at]
+      return completed.to_time if completed.respond_to?(:to_time)
+      completed
+    end
+
     def started_at
       @params[:started_at]
     end
 
     def completed?
-      @params[:complete]
+      completed_at
     end
 
     def params
@@ -37,7 +47,7 @@ module Progressrus
     def eta
       processed_per_second = (count.to_f / elapsed)
       left = (total - count)
-      seconds_to_finished = left * processed_per_second
+      seconds_to_finished = left / processed_per_second
       Time.now + seconds_to_finished
     end
   end

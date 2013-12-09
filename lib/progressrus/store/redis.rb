@@ -15,8 +15,6 @@ module Progressrus
         redis.expire(key(scope), expire)
       end
 
-      alias_method :complete, :persist
-
       def scope(scope)
         scope = redis.hgetall(key(scope))
         scope.each_pair { |id, value| 
