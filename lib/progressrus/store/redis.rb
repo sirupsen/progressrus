@@ -12,7 +12,7 @@ module Progressrus
 
       def persist(scope, id, serializeable_hash)
         redis.hset(key(scope), id, serializeable_hash.to_json)
-        redis.expire(key(scope), expire)
+        redis.expire(key(scope), expire) if @expire
       end
 
       def scope(scope)
