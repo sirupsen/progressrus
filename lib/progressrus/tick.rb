@@ -16,22 +16,22 @@ module Progressrus
       @params[:total]
     end
 
-    def completed_at
-      completed = @params[:completed_at]
-      return completed.to_time if completed.respond_to?(:to_time)
-      completed
-    end
-
     def started_at
       @params[:started_at]
+    end
+
+    def params
+      @params
     end
 
     def completed?
       completed_at
     end
 
-    def params
-      @params
+    def completed_at
+      completed = @params[:completed_at]
+      return completed.to_time if completed.respond_to?(:to_time)
+      completed
     end
 
     def elapsed

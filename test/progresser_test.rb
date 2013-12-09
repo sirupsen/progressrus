@@ -4,7 +4,7 @@ class ProgresserTest < Minitest::Unit::TestCase
   def setup
     Progressrus.store = Progressrus::Store::Redis.new
     @progresser = Progressrus::Progresser.new(scope: ["walrus"], total: 20)
-    @progresser.store.stubs(:persist).returns(true)
+    # @progresser.store.stubs(:persist).returns(true)
   end
 
   def test_tick_increments_by_one_with_no_arguments
@@ -35,5 +35,18 @@ class ProgresserTest < Minitest::Unit::TestCase
   def test_tick_sets_supplied_id
     progresser = Progressrus::Progresser.new(id: 1239, scope: ["wut"])
     assert_equal "1239", progresser.id
+  end
+
+  def test_complete_sets_completed_at
+    refute @progresser.completed_at
+
+    @progresser.complete
+
+    assert_instance_of Time, @progresser.completed_at
+  end
+
+  def test_complete_forces_a_persist
+    @progresser.expects(:persist)
+    @progresser.complete
   end
 end

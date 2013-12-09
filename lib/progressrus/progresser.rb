@@ -1,20 +1,22 @@
 module Progressrus
   class Progresser
-    attr_reader :scope, :count, :total, :started_at, :id, :store, :job, :params
+    PERSISTANCE_INTERVAL = 2
+
+    attr_reader :scope, :count, :total, :started_at, :id, 
+      :store, :job, :params, :completed_at
     attr_accessor :total
 
     def initialize(params, store = Progressrus.store)
       @scope        = params.delete(:scope).map(&:to_s)
       @total        = params.delete(:total).to_i
       @id           = (params.delete(:id) || SecureRandom.uuid).to_s
-      @interval     = (params.delete(:interval) || 2).to_i
+      @interval     = (params.delete(:interval) || PERSISTANCE_INTERVAL).to_i
       @params       = params
       @count        = 0
       @started_at   = Time.now
       @persisted_at = Time.now - @interval - 1
       @store        = store
-
-      @params[:completed_at] = nil
+      @completed_at = nil
     end
 
     def tick(ticks = 1)
@@ -23,22 +25,23 @@ module Progressrus
     end
 
     def complete
-      @params[:completed_at] = Time.now
+      @completed_at = Time.now
       persist
     end
 
     def to_serializeable
       {
-        count:      count,
-        total:      total,
-        started_at: started_at,
-        id:         @id
+        count:        count,
+        total:        total,
+        started_at:   started_at,
+        completed_at: @completed_at,
+        id:           @id
       }.merge(params)
     end
 
     private
     def persist
-      @store.persist(scope, id, to_serializeable)
+      store.persist(self)
       @persisted_at = Time.now
     end
 
