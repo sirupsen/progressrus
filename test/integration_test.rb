@@ -32,9 +32,7 @@ class IntegrationTest < Minitest::Unit::TestCase
 
     assert_equal 2, ticks.length
 
-    assert_equal 20, ticks[0].total
-    assert_equal 50, ticks[1].total
-
+    assert_equal [20, 50], ticks.map(&:total).sort
     assert_equal [1,1], ticks.map(&:count)
   end
 end
