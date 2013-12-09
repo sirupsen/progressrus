@@ -4,7 +4,10 @@ class ProgresserTest < Minitest::Unit::TestCase
   def setup
     Progressrus.store = Progressrus::Store::Redis.new
     @progresser = Progressrus::Progresser.new(scope: ["walrus"], total: 20)
-    # @progresser.store.stubs(:persist).returns(true)
+  end
+
+  def teardown
+    Progressrus.store.flush(@progresser.scope)
   end
 
   def test_tick_increments_by_one_with_no_arguments

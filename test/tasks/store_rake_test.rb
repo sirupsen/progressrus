@@ -1,7 +1,6 @@
 require_relative '../test_helper'
 
 class StoreRakeTest < Minitest::Unit::TestCase
-
   def setup
     load File.expand_path("../../../tasks/store.rake", __FILE__)
     Progressrus.store = Progressrus::Store::Redis.new
@@ -12,5 +11,4 @@ class StoreRakeTest < Minitest::Unit::TestCase
     Progressrus.store.expects(:flush).with([1, 'test'])
     Rake::Task['progressrus:store:flush'].invoke(1,'test')
   end
-
 end
