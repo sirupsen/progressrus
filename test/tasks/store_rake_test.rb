@@ -8,9 +8,9 @@ class StoreRakeTest < Minitest::Unit::TestCase
     Rake::Task.define_task(:environment)
   end
 
-  def test_store_flush_should_flush_the_store
-    Progressrus.store.expects(:flush).with('test')
-    Rake::Task['progressrus:store:flush'].invoke('test')
+  def test_store_flush_should_flush_the_store_with_mutli_key_scopes
+    Progressrus.store.expects(:flush).with([1, 'test'])
+    Rake::Task['progressrus:store:flush'].invoke(1,'test')
   end
 
 end
