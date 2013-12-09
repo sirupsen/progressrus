@@ -52,4 +52,12 @@ class ProgresserTest < Minitest::Unit::TestCase
     @progresser.expects(:persist)
     @progresser.complete
   end
+  
+  def test_to_serializeable_raises_if_total_is_not_set
+    @progresser.total = nil
+
+    assert_raises ArgumentError do
+      @progresser.to_serializeable
+    end
+  end
 end

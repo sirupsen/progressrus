@@ -8,7 +8,7 @@ module Progressrus
 
     def initialize(params, store = Progressrus.store)
       @scope        = params.delete(:scope).map(&:to_s)
-      @total        = params.delete(:total).to_i
+      @total        = params.delete(:total)
       @id           = (params.delete(:id) || SecureRandom.uuid).to_s
       @interval     = (params.delete(:interval) || PERSISTANCE_INTERVAL).to_i
       @params       = params
@@ -30,12 +30,14 @@ module Progressrus
     end
 
     def to_serializeable
+      raise ArgumentError, "Total must be set." unless total
+
       {
         count:        count,
         total:        total,
         started_at:   started_at,
-        completed_at: @completed_at,
-        id:           @id
+        completed_at: completed_at,
+        id:           id
       }.merge(params)
     end
 
