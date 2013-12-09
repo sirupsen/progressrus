@@ -73,4 +73,12 @@ class RedisStoreTest < Minitest::Unit::TestCase
     refute @store.scope(@second_progress.scope).has_key?("narwhal")
     assert @store.scope(@progress.scope).has_key?("oemg")
   end
+
+  def test_get_should_fetch_by_scope_and_id
+    @store.persist(@progress)
+
+    response = @store.get(@progress.scope, 'oemg')
+
+    assert_equal @progress.to_serializeable.to_json, response
+  end
 end

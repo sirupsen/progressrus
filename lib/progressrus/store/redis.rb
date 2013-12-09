@@ -21,6 +21,10 @@ module Progressrus
         }
       end
 
+      def get(scope, id)
+        scope = redis.hget(key(scope), id)
+      end
+
       def flush(scope, id = nil)
         if id
           redis.hdel(key(scope), id)
