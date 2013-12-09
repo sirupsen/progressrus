@@ -16,6 +16,8 @@ module Progressrus
   end
 
   def self.store
-    @@store
+    @@store if defined?(@@store)
   end
 end
+
+require 'progressrus/railtie' if defined?(Rails)

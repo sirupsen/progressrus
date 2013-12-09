@@ -13,7 +13,7 @@ class RedisStoreTest < Minitest::Unit::TestCase
   end
 
   def teardown
-    @store.flush
+    @store.flush(@progress.scope)
   end
 
   def test_persist_persists_a_progress_object
@@ -39,7 +39,7 @@ class RedisStoreTest < Minitest::Unit::TestCase
     @store.expire = 1
     @progress.persist
     sleep 1
-    assert @store.scope(@progress.scope).empty?, 
+    assert @store.scope(@progress.scope).empty?,
       "Expected key to have expired after 1 second."
   end
 end

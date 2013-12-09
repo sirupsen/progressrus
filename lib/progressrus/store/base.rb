@@ -11,7 +11,7 @@ module Progressrus
         raise NotImplementedError
       end
 
-      def flush(progressrus)
+      def flush(scope)
         raise NotImplementedError
       end
     end

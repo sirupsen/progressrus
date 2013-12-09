@@ -37,7 +37,8 @@ module Progressrus
       {
         count:      count,
         total:      total,
-        started_at: started_at
+        started_at: started_at,
+        id:         @id
       }.merge(params)
     end
 
