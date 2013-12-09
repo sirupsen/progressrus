@@ -7,10 +7,8 @@ class StoreRakeTest < Minitest::Unit::TestCase
   end
 
   def test_store_flush_should_flush_the_store
-    mock = Progressrus.store = MiniTest::Mock.new
-    mock.expect(:flush, true)
+    Progressrus.store.expects(:flush)
     Rake::Task['progressrus:store:flush'].invoke
-    mock.verify
   end
 
 end
