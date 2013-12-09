@@ -1,21 +1,18 @@
 module Progressrus
   module Store
     class Redis < Base
-      attr_accessor :expire
-      attr_reader :redis, :prefix
+      attr_reader :redis
+      attr_accessor :options
 
-      def initialize(redis = ::Redis.new, expire = 60 * 30, prefix = "progressrus")
+      def initialize(redis = ::Redis.new, options = {expire: 60 * 30, prefix: "progressrus"})
         @redis = redis
-        @expire = expire
-        @prefix = prefix
+        @options = options
       end
 
-      def persist(scope, id, serializeable_hash)
-        redis.hset(key(scope), id, serializeable_hash.to_json)
-        redis.expire(key(scope), expire)
+      def persist(progresser)
+        redis.hset(key(progresser.scope), progresser.id, progresser.to_serializeable.to_json)
+        redis.expire(key(progresser.scope), options[:expire]) if options[:expire]
       end
-
-      alias_method :complete, :persist
 
       def scope(scope)
         scope = redis.hgetall(key(scope))
@@ -24,14 +21,17 @@ module Progressrus
         }
       end
 
-      def flush(s)
-        key = key(s)
-        scope(s).each_pair { |id, value| redis.hdel(key, id) }
+      def flush(scope, id = nil)
+        if id
+          redis.hdel(key(scope), id)
+        else
+          redis.del(key(scope))
+        end
       end
 
       private
       def key(scope)
-        "#{prefix}:#{scope.join(":")}"
+        "#{options[:prefix]}:#{scope.join(":")}"
       end
     end
   end

@@ -10,6 +10,13 @@ class RedisStoreTest < Minitest::Unit::TestCase
       total: 100,
       name: "oemg-test"
     )
+
+    @second_progress = Progressrus::Progresser.new(
+      scope: ["walrus", "1234"],
+      id: "narwhal",
+      total: 50,
+      name: "oemg-test-2"
+    )
   end
 
   def teardown
@@ -17,7 +24,7 @@ class RedisStoreTest < Minitest::Unit::TestCase
   end
 
   def test_persist_persists_a_progress_object
-    @progress.persist
+    @store.persist(@progress)
     tick = @store.scope(@progress.scope)["oemg"]
 
     assert_instance_of Progressrus::Tick, tick
@@ -28,7 +35,7 @@ class RedisStoreTest < Minitest::Unit::TestCase
 
   def test_persist_twice_updates_object
     @progress.stubs(:count).returns(31)
-    @progress.persist
+    @store.persist(@progress)
 
     tick = @store.scope(@progress.scope)["oemg"]
 
@@ -36,10 +43,34 @@ class RedisStoreTest < Minitest::Unit::TestCase
   end
 
   def test_expire_key
-    @store.expire = 1
-    @progress.persist
+    @store.options[:expire] = 1
+    @store.persist(@progress)
     sleep 1
     assert @store.scope(@progress.scope).empty?,
       "Expected key to have expired after 1 second."
+  end
+
+  def test_flush_entire_scope
+    @store.persist(@progress)
+    assert @store.scope(@progress.scope).has_key?("oemg")
+
+    @store.persist(@second_progress)
+    assert @store.scope(@second_progress.scope).has_key?("narwhal")
+
+    @store.flush(@progress.scope)
+    refute @store.scope(@progress.scope).has_key?("oemg")
+    refute @store.scope(@progress.scope).has_key?("narwhal")
+  end
+
+  def test_flush_single_job
+    @store.persist(@progress)
+    assert @store.scope(@progress.scope).has_key?("oemg")
+
+    @store.persist(@second_progress)
+    assert @store.scope(@second_progress.scope).has_key?("narwhal")
+
+    @store.flush(@progress.scope, "narwhal")
+    refute @store.scope(@second_progress.scope).has_key?("narwhal")
+    assert @store.scope(@progress.scope).has_key?("oemg")
   end
 end

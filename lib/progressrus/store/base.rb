@@ -3,7 +3,7 @@ module Progressrus
     class NotImplementedError < StandardError; end
 
     class Base
-      def persist(progressrus)
+      def persist(progresser)
         raise NotImplementedError
       end
 
@@ -11,7 +11,7 @@ module Progressrus
         raise NotImplementedError
       end
 
-      def flush(scope)
+      def flush(scope, id = nil)
         raise NotImplementedError
       end
     end

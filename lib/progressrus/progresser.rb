@@ -22,17 +22,11 @@ module Progressrus
       persist if outdated?
     end
 
-    def persist
-      @store.persist(scope, id, to_serializeable)
-      @persisted_at = Time.now
-    end
-
     def complete
       @params[:completed_at] = Time.now
       persist
     end
 
-    private
     def to_serializeable
       {
         count:      count,
@@ -40,6 +34,12 @@ module Progressrus
         started_at: started_at,
         id:         @id
       }.merge(params)
+    end
+
+    private
+    def persist
+      @store.persist(scope, id, to_serializeable)
+      @persisted_at = Time.now
     end
 
     def outdated?
