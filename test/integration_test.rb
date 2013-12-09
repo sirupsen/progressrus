@@ -7,7 +7,7 @@ class IntegrationTest < Minitest::Unit::TestCase
   end
 
   def teardown
-    Progressrus.store.flush
+    Progressrus.store.flush(@progresser.scope)
   end
 
   def test_create_tick_and_see_status_in_redis

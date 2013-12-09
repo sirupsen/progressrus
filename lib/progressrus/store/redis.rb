@@ -24,8 +24,9 @@ module Progressrus
         }
       end
 
-      def flush
-        redis.flushdb
+      def flush(s)
+        key = key(s)
+        scope(s).each_pair { |id, value| redis.hdel(key, id) }
       end
 
       private
