@@ -3,7 +3,7 @@ require_relative '../test_helper'
 class StoreRakeTest < Minitest::Unit::TestCase
 
   def setup
-    load File.expand_path("../../../lib/tasks/store.rake", __FILE__)
+    load File.expand_path("../../../tasks/store.rake", __FILE__)
     Progressrus.store = Progressrus::Store::Redis.new
   end
 
