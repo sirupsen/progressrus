@@ -16,6 +16,6 @@ module Progressrus
   end
 
   def self.store
-    @@store
+    @@store if defined?(@@store)
   end
 end
