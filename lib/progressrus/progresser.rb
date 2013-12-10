@@ -2,7 +2,7 @@ module Progressrus
   class Progresser
     PERSISTANCE_INTERVAL = 2
 
-    attr_reader :scope, :count, :total, :started_at, :id, 
+    attr_reader :scope, :count, :total, :started_at, :id,
       :store, :job, :params, :completed_at
     attr_accessor :total
 

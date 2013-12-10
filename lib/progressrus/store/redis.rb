@@ -21,6 +21,11 @@ module Progressrus
         }
       end
 
+      def get(scope, id)
+        value = redis.hget(key(scope), id)
+        Progresser.new(JSON.parse(value, symbolize_names: true))
+      end
+
       def flush(scope, id = nil)
         if id
           redis.hdel(key(scope), id)

@@ -11,6 +11,10 @@ module Progressrus
     store.scope(scope)
   end
 
+  def self.get(scope, id, store = @@store)
+    store.get(scope, id)
+  end
+
   def self.store=(store = Redis::Base.new)
     @@store = store
   end

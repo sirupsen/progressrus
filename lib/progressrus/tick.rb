@@ -4,6 +4,10 @@ module Progressrus
       @params = params
     end
 
+    def id
+      @params[:id]
+    end
+
     def name
       @params[:name] || "#{@params[:scope].join(":")}:#{@params[:id]}"
     end

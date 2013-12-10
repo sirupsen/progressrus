@@ -22,4 +22,8 @@ class TickTest < Minitest::Unit::TestCase
   def test_name_returns_scope_and_id_if_not_set
     assert_equal "walrus:what", @tick.name
   end
+
+  def test_id_returns_the_id_of_the_tick
+    assert_equal "what", @tick.id
+  end
 end

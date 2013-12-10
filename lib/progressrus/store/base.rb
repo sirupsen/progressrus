@@ -11,6 +11,10 @@ module Progressrus
         raise NotImplementedError
       end
 
+      def get(scope, id)
+        raise NotImplementedError
+      end
+
       def flush(scope, id = nil)
         raise NotImplementedError
       end

@@ -73,4 +73,15 @@ class RedisStoreTest < Minitest::Unit::TestCase
     refute @store.scope(@second_progress.scope).has_key?("narwhal")
     assert @store.scope(@progress.scope).has_key?("oemg")
   end
+
+  def test_get_should_fetch_by_scope_and_id
+    @store.persist(@progress)
+
+    progresser = @store.get(@progress.scope, 'oemg')
+
+    assert_instance_of Progressrus::Progresser, progresser
+    assert_equal 0, progresser.count
+    assert_equal 100, progresser.total
+    assert_equal 'oemg', progresser.id
+  end
 end
