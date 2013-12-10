@@ -77,11 +77,11 @@ class RedisStoreTest < Minitest::Unit::TestCase
   def test_get_should_fetch_by_scope_and_id
     @store.persist(@progress)
 
-    tick = @store.get(@progress.scope, 'oemg')
+    progresser = @store.get(@progress.scope, 'oemg')
 
-    assert_instance_of Progressrus::Tick, tick
-    assert_equal 0, tick.count
-    assert_equal 100, tick.total
-    assert_equal "oemg-test", tick.params[:name]
+    assert_instance_of Progressrus::Progresser, progresser
+    assert_equal 0, progresser.count
+    assert_equal 100, progresser.total
+    assert_equal 'oemg', progresser.id
   end
 end

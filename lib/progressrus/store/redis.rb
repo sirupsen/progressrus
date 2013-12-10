@@ -23,7 +23,7 @@ module Progressrus
 
       def get(scope, id)
         value = redis.hget(key(scope), id)
-        Tick.new(JSON.parse(value, symbolize_names: true))
+        Progresser.new(JSON.parse(value, symbolize_names: true))
       end
 
       def flush(scope, id = nil)
