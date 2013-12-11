@@ -3,7 +3,7 @@ require_relative "test_helper"
 class ProgresserTest < Minitest::Unit::TestCase
   def setup
     Progressrus.store = Progressrus::Store::Redis.new
-    @progresser = Progressrus::Progresser.new(scope: ["walrus"], total: 20)
+    @progresser = Progressrus::Progresser.new(scope: ["walrus"], total: 20, name: 'Walruses!')
   end
 
   def teardown
@@ -52,12 +52,16 @@ class ProgresserTest < Minitest::Unit::TestCase
     @progresser.expects(:persist)
     @progresser.complete
   end
-  
+
   def test_to_serializeable_raises_if_total_is_not_set
     @progresser.total = nil
 
     assert_raises ArgumentError do
       @progresser.to_serializeable
     end
+  end
+
+  def test_name_is_initialized_and_accessible
+    assert_equal 'Walruses!', @progresser.name
   end
 end

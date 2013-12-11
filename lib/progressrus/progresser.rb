@@ -3,7 +3,7 @@ module Progressrus
     PERSISTANCE_INTERVAL = 2
 
     attr_reader :scope, :count, :total, :started_at, :id,
-      :store, :job, :params, :completed_at
+      :store, :job, :params, :completed_at, :name
     attr_accessor :total
 
     def initialize(params, store = Progressrus.store)
@@ -11,6 +11,7 @@ module Progressrus
       @total        = params.delete(:total)
       @id           = (params.delete(:id) || SecureRandom.uuid).to_s
       @interval     = (params.delete(:interval) || PERSISTANCE_INTERVAL).to_i
+      @name         = params[:name]
       @params       = params
       @count        = 0
       @started_at   = Time.now
@@ -38,7 +39,8 @@ module Progressrus
         started_at:   started_at,
         completed_at: completed_at,
         id:           id,
-        scope:        scope
+        scope:        scope,
+        name:         name
       }.merge(params)
     end
 
