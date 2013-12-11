@@ -49,7 +49,7 @@ module Progressrus
     end
 
     def outdated?
-      (@started_at - @interval) > @persisted_at
+      (Time.now - @interval) > @persisted_at
     end
   end
 end
