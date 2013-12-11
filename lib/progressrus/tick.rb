@@ -49,6 +49,8 @@ module Progressrus
     end
 
     def eta
+      return nil if count.to_i == 0
+
       processed_per_second = (count.to_f / elapsed)
       left = (total - count)
       seconds_to_finished = left / processed_per_second
