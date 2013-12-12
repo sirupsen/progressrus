@@ -74,6 +74,18 @@ class RedisStoreTest < Minitest::Unit::TestCase
     assert @store.scope(@progress.scope).has_key?("oemg")
   end
 
+  def test_scope_should_fetch_all_ticks_by_scope
+    @store.persist(@progress)
+    @store.persist(@second_progress)
+
+    ticks = @store.scope(@progress.scope)
+
+    assert_equal 2, ticks.length
+    assert_equal ['narwhal','oemg'], ticks.keys.sort!
+    assert_instance_of Progressrus::Tick, ticks['oemg']
+    assert_instance_of Progressrus::Tick, ticks['narwhal']
+  end
+
   def test_find_should_fetch_by_scope_and_id
     @store.persist(@progress)
 
@@ -89,21 +101,11 @@ class RedisStoreTest < Minitest::Unit::TestCase
     @store.persist(@progress)
     @store.persist(@second_progress)
 
-    progresss = @store.all(@progress.scope)
+    progresses = @store.all(@progress.scope)
 
-    assert_equal 2, progresss.length
-    assert_equal 'oemg', progresss[0].id
-    assert_equal 'narwhal', progresss[1].id
-  end
-
-  def test_all_should_fetch_by_scope_and_id
-    @store.persist(@progress)
-    @store.persist(@second_progress)
-
-    progressers = @store.all(@progress.scope)
-
-    assert_equal 2, progressers.length
-    assert_equal 'oemg', progressers[0].id
-    assert_equal 'narwhal', progressers[1].id
+    assert_equal 2, progresses.length
+    progresses.sort_by!(&:id)
+    assert_equal 'narwhal', progresses[0].id
+    assert_equal 'oemg', progresses[1].id
   end
 end
