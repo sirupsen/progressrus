@@ -85,11 +85,11 @@ class RedisStoreTest < Minitest::Unit::TestCase
     assert_equal 'oemg', progresser.id
   end
 
-  def test_find_all_should_fetch_by_scope_and_id
+  def test_all_should_fetch_by_scope_and_id
     @store.persist(@progress)
     @store.persist(@second_progress)
 
-    progressers = @store.find_all(@progress.scope)
+    progressers = @store.all(@progress.scope)
 
     assert_equal 2, progressers.length
     assert_equal 'oemg', progressers[0].id

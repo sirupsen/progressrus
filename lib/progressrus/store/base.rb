@@ -11,7 +11,7 @@ module Progressrus
         raise NotImplementedError
       end
 
-      def find_all(scope, id)
+      def all(scope, id)
         raise NotImplementedError
       end
 
