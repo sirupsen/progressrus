@@ -20,7 +20,7 @@ without worrying about keeping e.g. the Resque job ids around.
 `Progressrus` will update the data store with the progress of the job. The key
 for a user with `user_id` `3421` would be: `progressrus:user:3421`. For the
 Redis data store, the key is a Redis hash where the Redis `job_id` is the key
-and the value is a `json` object with information about the progress, i.e.: 
+and the value is a `json` object with information about the progress, i.e.:
 
 ```redis
 redis> HGETALL progressrus:user:3421
@@ -38,7 +38,7 @@ class MaintenacegProcessRecords
   def self.perform(record_ids, user_id)
     # Construct the pace object.
     progress = Progressrus::Progresser.new(scope: [:user, user_id], total: record_ids.count)
-    
+
     # Start processing the records!
     Record.where(id: record_ids).find_each do |record|
       record.do_expensive_things
@@ -53,17 +53,15 @@ class MaintenacegProcessRecords
 end
 ```
 
-## Querying by scope
+## Querying Ticks by scope
 
-To query for the progress of jobs for a specific scope: 
+To query for the individual Tick progress of jobs for a specific scope:
 
 ```ruby
-> Progressrus.scope(["user", user_id])
+> Progressrus.scope(["walrus", '1234'])
 #=> {
-  [#<Progressrus::Tick:0x007f55e8c939d0 @values={:count=>1, :total=>20,
-  :started_at=>"2013-12-08 20:04:59 +0000"}>,
-  #<Progressrus::Tick:0x007f55e8c93818 @values={:count=>1, :total=>50,
-  :started_at=>"2013-12-08 20:04:59 +0000"}>]
+  "narwhal"=>#<Progressrus::Tick:0x007f0727fde6b8 @params={:count=>0, :total=>50, :started_at=>"2013-12-12 18:13:41 +0000", :completed_at=>nil, :id=>"narwhal", :scope=>["walrus", "1234"], :name=>"oemg-test-2"}>,
+  "oemg"=>#<Progressrus::Tick:0x007f0727fde0c8 @params={:count=>0, :total=>100, :started_at=>"2013-12-12 18:13:41 +0000", :completed_at=>nil, :id=>"oemg", :scope=>["walrus", "1234"], :name=>"oemg-test"}>}
 }
 ```
 
@@ -71,6 +69,27 @@ The `Tick` objects contain useful methods such as `#percentage` to return how
 many percent done the job is and `#eta` to return a `Time` object estimation of
 when the job will be complete.  The scope is completely independent from the job
 itself, which means you can have jobs from multiple sources in the same scope.
+
+## Querying Progress by scope
+
+To query for the progress of jobs for a specific scope:
+
+```ruby
+> Progressrus.all(["walrus", '1234'])
+#=> [
+  #<Progressrus::Progress:0x007f0fdc8ab888 @scope=["walrus", "1234"], @total=50, @id="narwhal", @interval=2, @params={:count=>0, :started_at=>"2013-12-12 18:09:44 +0000", :completed_at=>nil, :name=>"oemg-test-2"}, @count=0, @started_at=2013-12-12 18:09:44 +0000, @persisted_at=2013-12-12 18:09:41 +0000, @store=#<Progressrus::Store::Redis:0x007f0fdc894c28 @redis=#<Redis client v3.0.6 for redis://127.0.0.1:6379/0>, @options={:expire=>1800, :prefix=>"progressrus"}>, @completed_at=nil>,
+  #<Progressrus::Progress:0x007f0fdc8ab4a0 @scope=["walrus", "1234"], @total=100, @id="oemg", @interval=2, @params={:count=>0, :started_at=>"2013-12-12 18:09:44 +0000", :completed_at=>nil, :name=>"oemg-test"}, @count=0, @started_at=2013-12-12 18:09:44 +0000, @persisted_at=2013-12-12 18:09:41 +0000, @store=#<Progressrus::Store::Redis:0x007f0fdc894c28 @redis=#<Redis client v3.0.6 for redis://127.0.0.1:6379/0>, @options={:expire=>1800, :prefix=>"progressrus"}>, @completed_at=nil>
+]
+```
+
+## Querying Progress by scope and id
+
+To query for the progress of a specific job:
+
+```ruby
+> Progressrus.find(["walrus", '1234'], 'narwhal')
+#=> #<Progressrus::Progress:0x007f0fdc8ab888 @scope=["walrus", "1234"], @total=50, @id="narwhal", @interval=2, @params={:count=>0, :started_at=>"2013-12-12 18:09:44 +0000", :completed_at=>nil, :name=>"oemg-test-2"}, @count=0, @started_at=2013-12-12 18:09:44 +0000, @persisted_at=2013-12-12 18:09:41 +0000, @store=#<Progressrus::Store::Redis:0x007f0fdc894c28 @redis=#<Redis client v3.0.6 for redis://127.0.0.1:6379/0>, @options={:expire=>1800, :prefix=>"progressrus"}>, @completed_at=nil>
+```
 
 ## Todo
 
