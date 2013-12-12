@@ -29,6 +29,10 @@ module Progressrus
       persist
     end
 
+    def name
+      @params[:name]
+    end
+
     def to_serializeable
       raise ArgumentError, "Total must be set." unless total
 
@@ -38,7 +42,8 @@ module Progressrus
         started_at:   started_at,
         completed_at: completed_at,
         id:           id,
-        scope:        scope
+        scope:        scope,
+        name:         name
       }.merge(params)
     end
 

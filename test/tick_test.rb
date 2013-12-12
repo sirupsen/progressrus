@@ -26,4 +26,9 @@ class TickTest < Minitest::Unit::TestCase
   def test_id_returns_the_id_of_the_tick
     assert_equal "what", @tick.id
   end
+
+  def test_eta_should_return_nil_if_count_is_zero
+    tick = Progressrus::Tick.new(count: 0, total: 100, started_at: @started_at, scope: ["walrus"], id: "what")
+    assert_equal nil, tick.eta
+  end
 end

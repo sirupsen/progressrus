@@ -21,7 +21,12 @@ module Progressrus
         }
       end
 
-      def get(scope, id)
+      def all(scope)
+        scope = redis.hgetall(key(scope))
+        scope.collect { |id, value| Progresser.new(JSON.parse(value, symbolize_names: true))}
+      end
+
+      def find(scope, id)
         value = redis.hget(key(scope), id)
         Progresser.new(JSON.parse(value, symbolize_names: true))
       end
