@@ -3,7 +3,7 @@ module Progressrus
     class NotImplementedError < StandardError; end
 
     class Base
-      def persist(progresser)
+      def persist(progress)
         raise NotImplementedError
       end
 

@@ -9,9 +9,9 @@ module Progressrus
         @options = options
       end
 
-      def persist(progresser)
-        redis.hset(key(progresser.scope), progresser.id, progresser.to_serializeable.to_json)
-        redis.expire(key(progresser.scope), options[:expire]) if options[:expire]
+      def persist(progress)
+        redis.hset(key(progress.scope), progress.id, progress.to_serializeable.to_json)
+        redis.expire(key(progress.scope), options[:expire]) if options[:expire]
       end
 
       def scope(scope)
@@ -23,12 +23,12 @@ module Progressrus
 
       def all(scope)
         scope = redis.hgetall(key(scope))
-        scope.collect { |id, value| Progresser.new(JSON.parse(value, symbolize_names: true))}
+        scope.collect { |id, value| Progress.new(JSON.parse(value, symbolize_names: true))}
       end
 
       def find(scope, id)
         value = redis.hget(key(scope), id)
-        Progresser.new(JSON.parse(value, symbolize_names: true))
+        Progress.new(JSON.parse(value, symbolize_names: true))
       end
 
       def flush(scope, id = nil)

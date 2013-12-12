@@ -3,7 +3,7 @@ require 'securerandom'
 require 'redis'
 require_relative "progressrus/store/base"
 require_relative "progressrus/store/redis"
-require_relative "progressrus/progresser"
+require_relative "progressrus/progress"
 require_relative "progressrus/tick"
 
 module Progressrus

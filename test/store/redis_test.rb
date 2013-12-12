@@ -4,14 +4,14 @@ class RedisStoreTest < Minitest::Unit::TestCase
   def setup
     @store = Progressrus::Store::Redis.new
     Progressrus.store = @store
-    @progress = Progressrus::Progresser.new(
+    @progress = Progressrus::Progress.new(
       scope: ["walrus", "1234"],
       id: "oemg",
       total: 100,
       name: "oemg-test"
     )
 
-    @second_progress = Progressrus::Progresser.new(
+    @second_progress = Progressrus::Progress.new(
       scope: ["walrus", "1234"],
       id: "narwhal",
       total: 50,
@@ -77,12 +77,23 @@ class RedisStoreTest < Minitest::Unit::TestCase
   def test_find_should_fetch_by_scope_and_id
     @store.persist(@progress)
 
-    progresser = @store.find(@progress.scope, 'oemg')
+    progress = @store.find(@progress.scope, 'oemg')
 
-    assert_instance_of Progressrus::Progresser, progresser
-    assert_equal 0, progresser.count
-    assert_equal 100, progresser.total
-    assert_equal 'oemg', progresser.id
+    assert_instance_of Progressrus::Progress, progress
+    assert_equal 0, progress.count
+    assert_equal 100, progress.total
+    assert_equal 'oemg', progress.id
+  end
+
+  def test_all_should_fetch_by_scope_and_id
+    @store.persist(@progress)
+    @store.persist(@second_progress)
+
+    progresss = @store.all(@progress.scope)
+
+    assert_equal 2, progresss.length
+    assert_equal 'oemg', progresss[0].id
+    assert_equal 'narwhal', progresss[1].id
   end
 
   def test_all_should_fetch_by_scope_and_id

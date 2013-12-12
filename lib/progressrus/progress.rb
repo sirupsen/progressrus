@@ -1,5 +1,5 @@
 module Progressrus
-  class Progresser
+  class Progress
     PERSISTANCE_INTERVAL = 2
 
     attr_reader :scope, :count, :total, :started_at, :id,
@@ -54,7 +54,7 @@ module Progressrus
     end
 
     def outdated?
-      (Time.now - @interval) > @persisted_at
+      (@started_at - @interval) > @persisted_at
     end
   end
 end
