@@ -1,6 +1,7 @@
 require 'json'
 require 'securerandom'
 require 'redis'
+require 'time'
 require_relative "progressrus/store"
 require_relative "progressrus/store/base"
 require_relative "progressrus/store/redis"
@@ -101,7 +102,7 @@ class Progressrus
   end
 
   def parse_time(time)
-    return Time.new(time) if time.is_a?(String)
+    return Time.parse(time) if time.is_a?(String)
     time
   end
 end
