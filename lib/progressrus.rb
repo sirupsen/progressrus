@@ -17,7 +17,7 @@ class Progressrus
     alias_method :all, :scope
 
     def find(scope, id, store: :first)
-      stores.find_by_name(store).scope(scope, id)
+      stores.find_by_name(store).find(scope, id)
     end
   end
 
@@ -42,8 +42,9 @@ class Progressrus
     @params       = params
     @stores       = stores
     @count        = count
-    @started_at   = started_at
-    @completed_at = completed_at
+
+    @started_at   = parse_time(started_at)
+    @completed_at = parse_time(completed_at)
   end
 
   def tick(ticks = 1, now: Time.now)
@@ -54,7 +55,7 @@ class Progressrus
 
   def complete(now: Time.now)
     @completed_at = now
-    persist
+    persist(force: true)
   end
 
   def to_serializeable
@@ -95,8 +96,13 @@ class Progressrus
   end
 
   private
-  def persist
-    stores.each { |store| store.persist(self) }
+  def persist(force: false)
+    stores.each { |store| store.persist(self, force: force) }
+  end
+
+  def parse_time(time)
+    return Time.new(time) if time.is_a?(String)
+    time
   end
 end
 

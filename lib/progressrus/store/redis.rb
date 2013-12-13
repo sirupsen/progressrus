@@ -11,8 +11,8 @@ class Progressrus
         @prefix        = prefix
       end
 
-      def persist(progress, now: Time.now)
-        if outdated?(progress)
+      def persist(progress, now: Time.now, force: false)
+        if outdated?(progress) || force
           redis.hset(key(progress.scope), progress.id, progress.to_serializeable.to_json)
           @persisted_ats[progress.scope][progress.id] = now
         end

@@ -70,10 +70,10 @@ class RedisStoreTest < Minitest::Unit::TestCase
   end
 
   def test_flush_should_delete_by_scope_and_id
-	@store.persist(@progress)
+	  @store.persist(@progress)
   	@store.persist(@another_progress)
 
-	@store.flush(@scope, 'oemg')
+	  @store.flush(@scope, 'oemg')
   	
   	assert_equal nil, @store.find(@scope, 'oemg')
   	assert @store.find(@scope, 'oemg-two')
@@ -81,6 +81,20 @@ class RedisStoreTest < Minitest::Unit::TestCase
 
   def test_initializes_name_to_redis
   	assert_equal :redis, @store.name 
+  end
+
+  def test_persist_should_not_write_by_default
+    @store.redis.expects(:hset).once
+
+    @store.persist(@progress)
+    @store.persist(@progress)
+  end
+
+  def test_persist_should_write_if_forced
+    @store.redis.expects(:hset).twice
+    
+    @store.persist(@progress)
+    @store.persist(@progress, force: true)
   end
 
 end

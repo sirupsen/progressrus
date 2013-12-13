@@ -178,6 +178,15 @@ class ProgressrusTest < Minitest::Unit::TestCase
     end
   end
 
+  def test_date_fields_should_deserialize_properly
+    @progress.tick(1)
+    @progress.complete
+    progress = Progressrus.find(@progress.scope, @progress.id)
+    assert_instance_of Time, progress.started_at
+    assert_instance_of Time, progress.completed_at
+  end
+
+
   def test_default_scope_on_first
     Progressrus.stores.clear
 
@@ -224,5 +233,12 @@ class ProgressrusTest < Minitest::Unit::TestCase
     redis.expects(:scope).once
 
     Progressrus.all(["oemg"], store: :redis)
+  end
+
+  def test_find_should_find_a_progressrus_by_scope_and_id
+    @progress.tick
+    progress = Progressrus.find(@progress.scope, @progress.id)
+
+    assert_instance_of Progressrus, progress
   end
 end
