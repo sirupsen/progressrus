@@ -2,12 +2,11 @@ require_relative "test_helper"
 
 class IntegrationTest < Minitest::Unit::TestCase
   def setup
-    Progressrus.store = Progressrus::Store::Redis.new
-    @progress = Progressrus::Progress.new(scope: ["walrus"], total: 20)
+    @progress = Progressrus.new(scope: "walrus", total: 20)
   end
 
   def teardown
-    Progressrus.store.flush(@progress.scope)
+    Progressrus.stores.first.flush(@progress.scope)
   end
 
   def test_create_tick_and_see_status_in_redis
@@ -25,7 +24,7 @@ class IntegrationTest < Minitest::Unit::TestCase
   def test_create_multiple_ticks_and_see_them_in_redis
     @progress.tick
 
-    progress2 = Progressrus::Progress.new(scope: ["walrus"], total: 50)
+    progress2 = Progressrus.new(scope: ["walrus"], total: 50)
     progress2.tick
 
     ticks = Progressrus.scope(["walrus"]).values

@@ -2,110 +2,85 @@ require_relative "../test_helper"
 
 class RedisStoreTest < Minitest::Unit::TestCase
   def setup
-    @store = Progressrus::Store::Redis.new
-    Progressrus.store = @store
-    @progress = Progressrus::Progress.new(
-      scope: ["walrus", "1234"],
+  	@scope = ["walrus", "1234"]
+    @progress = Progressrus.new(
+      scope: @scope,
       id: "oemg",
       total: 100,
-      name: "oemg-test"
+      name: "oemg-name"
     )
 
-    @second_progress = Progressrus::Progress.new(
-      scope: ["walrus", "1234"],
-      id: "narwhal",
-      total: 50,
-      name: "oemg-test-2"
+  	@another_progress = Progressrus.new(
+      scope: @scope,
+      id: "oemg-two",
+      total: 100,
+      name: "oemg-name-two"
     )
+
+    @store = Progressrus::Store::Redis.new(::Redis.new(host: "10.0.0.10"))
   end
 
   def teardown
-    @store.flush(@progress.scope)
+  	@store.flush(@scope)
   end
 
-  def test_persist_persists_a_progress_object
-    @store.persist(@progress)
-    tick = @store.scope(@progress.scope)["oemg"]
+  def test_persist_should_set_key_value_if_outdated
+  	@store.persist(@progress)
 
-    assert_instance_of Progressrus::Tick, tick
-    assert_equal 0, tick.count
-    assert_equal 100, tick.total
-    assert_equal "oemg-test", tick.params[:name]
+  	assert_equal 'oemg', @store.find(['walrus', '1234'], 'oemg').id
   end
 
-  def test_persist_twice_updates_object
-    @progress.stubs(:count).returns(31)
-    @store.persist(@progress)
+  def test_persist_should_not_set_key_value_if_not_outdated
+  	@store.redis.expects(:hset).once
 
-    tick = @store.scope(@progress.scope)["oemg"]
-
-    assert_equal 31, tick.count
+  	@store.persist(@progress)
+  	@store.persist(@progress)
   end
 
-  def test_expire_key
-    @store.options[:expire] = 1
-    @store.persist(@progress)
-    sleep 1
-    assert @store.scope(@progress.scope).empty?,
-      "Expected key to have expired after 1 second."
+  def test_scope_should_return_progressruses_indexed_by_id
+  	@store.persist(@progress)
+  	@store.persist(@another_progress)
+  	actual = @store.scope(@scope)
+  	
+  	assert_equal @progress.id, actual['oemg'].id
+  	assert_equal @another_progress.id, actual['oemg-two'].id
   end
 
-  def test_flush_entire_scope
-    @store.persist(@progress)
-    assert @store.scope(@progress.scope).has_key?("oemg")
-
-    @store.persist(@second_progress)
-    assert @store.scope(@second_progress.scope).has_key?("narwhal")
-
-    @store.flush(@progress.scope)
-    refute @store.scope(@progress.scope).has_key?("oemg")
-    refute @store.scope(@progress.scope).has_key?("narwhal")
+  def test_scope_should_return_an_empty_hash_if_nothing_is_found
+  	assert_equal({}, @store.scope(@scope))
   end
 
-  def test_flush_single_job
-    @store.persist(@progress)
-    assert @store.scope(@progress.scope).has_key?("oemg")
+  def test_find_should_return_a_single_progressrus_for_scope_and_id
+  	@store.persist(@progress)
 
-    @store.persist(@second_progress)
-    assert @store.scope(@second_progress.scope).has_key?("narwhal")
-
-    @store.flush(@progress.scope, "narwhal")
-    refute @store.scope(@second_progress.scope).has_key?("narwhal")
-    assert @store.scope(@progress.scope).has_key?("oemg")
+  	assert_equal @progress.id, @store.find(@scope, 'oemg').id
   end
 
-  def test_scope_should_fetch_all_ticks_by_scope
-    @store.persist(@progress)
-    @store.persist(@second_progress)
-
-    ticks = @store.scope(@progress.scope)
-
-    assert_equal 2, ticks.length
-    assert_equal ['narwhal','oemg'], ticks.keys.sort!
-    assert_instance_of Progressrus::Tick, ticks['oemg']
-    assert_instance_of Progressrus::Tick, ticks['narwhal']
+  def test_find_should_return_nil_if_nothing_is_found
+  	assert_equal nil, @store.find(@scope, 'oemg')
   end
 
-  def test_find_should_fetch_by_scope_and_id
-    @store.persist(@progress)
+  def test_flush_should_delete_by_scope
+  	@store.persist(@progress)
+  	@store.persist(@another_progress)
 
-    progress = @store.find(@progress.scope, 'oemg')
+  	@store.flush(@scope)
 
-    assert_instance_of Progressrus::Progress, progress
-    assert_equal 0, progress.count
-    assert_equal 100, progress.total
-    assert_equal 'oemg', progress.id
+  	assert_equal({}, @store.scope(@scope))
   end
 
-  def test_all_should_fetch_by_scope_and_id
-    @store.persist(@progress)
-    @store.persist(@second_progress)
+  def test_flush_should_delete_by_scope_and_id
+	@store.persist(@progress)
+  	@store.persist(@another_progress)
 
-    progresses = @store.all(@progress.scope)
-
-    assert_equal 2, progresses.length
-    progresses.sort_by!(&:id)
-    assert_equal 'narwhal', progresses[0].id
-    assert_equal 'oemg', progresses[1].id
+	@store.flush(@scope, 'oemg')
+  	
+  	assert_equal nil, @store.find(@scope, 'oemg')
+  	assert @store.find(@scope, 'oemg-two')
   end
+
+  def test_initializes_name_to_redis
+  	assert_equal :redis, @store.name 
+  end
+
 end

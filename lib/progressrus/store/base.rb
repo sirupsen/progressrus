@@ -1,5 +1,5 @@
-module Progressrus
-  module Store
+class Progressrus
+  class Store
     class NotImplementedError < StandardError; end
 
     class Base
@@ -8,10 +8,6 @@ module Progressrus
       end
 
       def scope(scope)
-        raise NotImplementedError
-      end
-
-      def all(scope, id)
         raise NotImplementedError
       end
 

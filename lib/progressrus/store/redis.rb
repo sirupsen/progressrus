@@ -1,34 +1,35 @@
-module Progressrus
-  module Store
+class Progressrus
+  class Store
     class Redis < Base
-      attr_reader :redis
-      attr_accessor :options
+      attr_reader :redis, :interval, :persisted_at, :prefix, :name
 
-      def initialize(redis = ::Redis.new, options = {expire: 60 * 30, prefix: "progressrus"})
-        @redis = redis
-        @options = options
+      def initialize(instance, prefix: "progressrus", interval: 1, now: Time.now)
+        @name          = :redis
+        @redis         = instance
+        @persisted_ats = Hash.new({})
+        @interval      = interval
+        @prefix        = prefix
       end
 
-      def persist(progress)
-        redis.hset(key(progress.scope), progress.id, progress.to_serializeable.to_json)
-        redis.expire(key(progress.scope), options[:expire]) if options[:expire]
+      def persist(progress, now: Time.now)
+        if outdated?(progress)
+          redis.hset(key(progress.scope), progress.id, progress.to_serializeable.to_json)
+          @persisted_ats[progress.scope][progress.id] = now
+        end
       end
 
       def scope(scope)
         scope = redis.hgetall(key(scope))
         scope.each_pair { |id, value|
-          scope[id] = Tick.new(JSON.parse(value, symbolize_names: true))
+          scope[id] = Progressrus.new(deserialize(value))
         }
-      end
-
-      def all(scope)
-        scope = redis.hgetall(key(scope))
-        scope.collect { |id, value| Progress.new(JSON.parse(value, symbolize_names: true))}
       end
 
       def find(scope, id)
         value = redis.hget(key(scope), id)
-        Progress.new(JSON.parse(value, symbolize_names: true))
+        return unless value
+
+        Progressrus.new(deserialize(value))
       end
 
       def flush(scope, id = nil)
@@ -41,7 +42,19 @@ module Progressrus
 
       private
       def key(scope)
-        "#{options[:prefix]}:#{scope.join(":")}"
+        "#{prefix}:#{scope.join(":")}"
+      end
+
+      def deserialize(value)
+        JSON.parse(value, symbolize_names: true)
+      end
+
+      def outdated?(progress, now: Time.now)
+        (now - interval).to_i >= persisted_at(progress).to_i
+      end
+
+      def persisted_at(progress)
+        @persisted_ats[progress.scope][progress.id]
       end
     end
   end
