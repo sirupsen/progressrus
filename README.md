@@ -9,9 +9,10 @@ than the long-running operation.
 
 It works by instructing `Progressrus` about the finishing point. When the job
 makes progress towards the total, the job calls `tick`. With ticks 2 seconds
-apart (configurable) the progress is updated in the data store.  This prevents a
-job processing relatively e.g. 100 records to hit the data store 100 times.
-Updating more than every two seconds doesn't really provide much value.
+apart (configurable) the progress is updated in the data store. This prevents a
+job processing e.g. 100 records to hit the data store 100 times. Combination of
+adapters is planned, so you can publish to some kind of real-time data source,
+Redis and even stdout at the same time.
 
 `Progressrus` keeps track of the jobs in some scope. This could be a `user_id`.
 This makes it easy to find the jobs and their progress for a specific user,
@@ -30,14 +31,14 @@ redis> HGETALL progressrus:user:3421
 
 ## Usage
 
-Instrument by creating a `Progresser` object with the `scope` and `total` amount of
+Instrument by creating a `Progressrus` object with the `scope` and `total` amount of
 records to be processed:
 
 ```ruby
 class MaintenacegProcessRecords
   def self.perform(record_ids, user_id)
     # Construct the pace object.
-    progress = Progressrus::Progresser.new(scope: [:user, user_id], total: record_ids.count)
+    progress = Progresserus.new(scope: [:user, user_id], total: record_ids.count)
 
     # Start processing the records!
     Record.where(id: record_ids).find_each do |record|
@@ -55,23 +56,6 @@ end
 
 ## Querying Ticks by scope
 
-To query for the individual Tick progress of jobs for a specific scope:
-
-```ruby
-> Progressrus.scope(["walrus", '1234'])
-#=> {
-  "narwhal"=>#<Progressrus::Tick:0x007f0727fde6b8 @params={:count=>0, :total=>50, :started_at=>"2013-12-12 18:13:41 +0000", :completed_at=>nil, :id=>"narwhal", :scope=>["walrus", "1234"], :name=>"oemg-test-2"}>,
-  "oemg"=>#<Progressrus::Tick:0x007f0727fde0c8 @params={:count=>0, :total=>100, :started_at=>"2013-12-12 18:13:41 +0000", :completed_at=>nil, :id=>"oemg", :scope=>["walrus", "1234"], :name=>"oemg-test"}>}
-}
-```
-
-The `Tick` objects contain useful methods such as `#percentage` to return how
-many percent done the job is and `#eta` to return a `Time` object estimation of
-when the job will be complete.  The scope is completely independent from the job
-itself, which means you can have jobs from multiple sources in the same scope.
-
-## Querying Progress by scope
-
 To query for the progress of jobs for a specific scope:
 
 ```ruby
@@ -81,6 +65,11 @@ To query for the progress of jobs for a specific scope:
   #<Progressrus::Progress:0x007f0fdc8ab4a0 @scope=["walrus", "1234"], @total=100, @id="oemg", @interval=2, @params={:count=>0, :started_at=>"2013-12-12 18:09:44 +0000", :completed_at=>nil, :name=>"oemg-test"}, @count=0, @started_at=2013-12-12 18:09:44 +0000, @persisted_at=2013-12-12 18:09:41 +0000, @store=#<Progressrus::Store::Redis:0x007f0fdc894c28 @redis=#<Redis client v3.0.6 for redis://127.0.0.1:6379/0>, @options={:expire=>1800, :prefix=>"progressrus"}>, @completed_at=nil>
 ]
 ```
+
+The `Progressrus` objects contain useful methods such as `#percentage` to return how
+many percent done the job is and `#eta` to return a `Time` object estimation of
+when the job will be complete.  The scope is completely independent from the job
+itself, which means you can have jobs from multiple sources in the same scope.
 
 ## Querying Progress by scope and id
 
