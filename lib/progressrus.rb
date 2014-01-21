@@ -9,7 +9,7 @@ require_relative "progressrus/store/redis"
 class Progressrus
   class << self
     def stores
-      @@stores ||= Store.new(Store::Redis.new(::Redis.new(host: "10.0.0.10")))
+      @@stores ||= Store.new(Store::Redis.new(::Redis.new(host: "192.168.211.38")))
     end
 
     def scope(scope, store: :first)
@@ -55,6 +55,7 @@ class Progressrus
   end
 
   def complete(now: Time.now)
+    @started_at ||= now
     @completed_at = now
     persist(force: true)
   end
