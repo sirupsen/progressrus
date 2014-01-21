@@ -249,4 +249,22 @@ class ProgressrusTest < Minitest::Unit::TestCase
     assert_instance_of Time, @progress.started_at
     assert_instance_of Time, @progress.completed_at
   end
+
+  def test_able_to_set_count
+    @progress.count = 100
+    assert_equal 100, @progress.count
+  end
+
+  def test_call_persist_after_setting_count
+    @progress.expects(:persist).once
+
+    @progress.count = 100
+  end
+
+  def test_set_started_at_if_not_set
+    @progress.instance_variable_set(:@started_at, nil)
+    @progress.count = 100
+
+    assert_instance_of Time, @progress.started_at
+  end
 end
