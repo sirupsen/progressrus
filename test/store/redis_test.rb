@@ -17,7 +17,7 @@ class RedisStoreTest < Minitest::Unit::TestCase
       name: "oemg-name-two"
     )
 
-    @store = Progressrus::Store::Redis.new(::Redis.new(host: "192.168.211.38"))
+    @store = Progressrus::Store::Redis.new(::Redis.new(host: ENV["PROGRESSRUS_REDIS_HOST"] || "localhost"))
   end
 
   def teardown

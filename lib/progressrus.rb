@@ -9,7 +9,7 @@ require_relative "progressrus/store/redis"
 class Progressrus
   class << self
     def stores
-      @@stores ||= Store.new(Store::Redis.new(::Redis.new(host: "192.168.211.38")))
+      @@stores ||= Store.new(Store::Redis.new(::Redis.new(host: ENV["PROGRESSRUS_REDIS_HOST"] || "localhost")))
     end
 
     def scope(scope, store: :first)
