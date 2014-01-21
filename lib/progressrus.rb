@@ -55,6 +55,7 @@ class Progressrus
   end
 
   def complete(now: Time.now)
+    @started_at ||= now
     @completed_at = now
     persist(force: true)
   end

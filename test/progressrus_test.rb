@@ -241,4 +241,12 @@ class ProgressrusTest < Minitest::Unit::TestCase
 
     assert_instance_of Progressrus, progress
   end
+
+  def test_completed_should_set_started_at_if_never_ticked
+    refute @progress.started_at
+    @progress.complete
+
+    assert_instance_of Time, @progress.started_at
+    assert_instance_of Time, @progress.completed_at
+  end
 end
