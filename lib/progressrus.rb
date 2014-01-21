@@ -54,6 +54,10 @@ class Progressrus
     persist
   end
 
+  def count=(new_count, **args)
+    tick(new_count - @count, *args)
+  end
+
   def complete(now: Time.now)
     @started_at ||= now
     @completed_at = now
