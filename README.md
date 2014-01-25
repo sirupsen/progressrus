@@ -1,18 +1,21 @@
 # Progressrus
 
 `Progressrus` provides progress status of long-running jobs. The progress is
-stored in some kind of database. Progressrus currently ships with a Redis
-adapter. Think of it as a progress bar where instead of flushing the progress to
-`stdout`, it's stored in a data store. It can be used with a background job engine or
-just about anything where you need to show the progress in a different location
-than the long-running operation.
+stored in persistence layer. Progressrus currently ships with a Redis adapter,
+but is written in an agnostic way, where multiple layers can be used at the same
+time. For example, one a message queue adapter too for real-time updates.
 
-It works by instructing `Progressrus` about the finishing point. When the job
-makes progress towards the total, the job calls `tick`. With ticks 2 seconds
-apart (configurable) the progress is updated in the data store. This prevents a
-job processing e.g. 100 records to hit the data store 100 times. Combination of
-adapters is planned, so you can publish to some kind of real-time data source,
-Redis and even stdout at the same time.
+Think of Progressrus as a progress bar where instead of flushing the progress to
+`stdout`, it's pushed to one or more data stores. It can be used with a
+background job engine or just about anything where you need to show the progress
+in a different location than the long-running operation.
+
+It works by instructing `Progressrus` about the finishing point (total). When
+the job makes progress towards the total, the job calls `tick`. With ticks
+second(s) apart (configurable) the progress is updated in the data store(s). This
+prevents a job processing e.g. 100 records to hit the data store 100 times.
+Combination of adapters is planned, so you can publish to some kind of real-time
+data source, Redis and even stdout at the same time.
 
 `Progressrus` keeps track of the jobs in some scope. This could be a `user_id`.
 This makes it easy to find the jobs and their progress for a specific user,
