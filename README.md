@@ -41,7 +41,7 @@ records to be processed:
 class MaintenacegProcessRecords
   def self.perform(record_ids, user_id)
     # Construct the pace object.
-    progress = Progresserus.new(scope: [:user, user_id], total: record_ids.count)
+    progress = Progressrus.new(scope: [:user, user_id], total: record_ids.count)
 
     # Start processing the records!
     Record.where(id: record_ids).find_each do |record|
