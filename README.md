@@ -89,3 +89,5 @@ To query for the progress of a specific job:
 * Rack interface
 * SQL adapter
 * Document adapter-specific options
+* Enumerable integration for higher-level API
+* Documentation on how to do sharding
