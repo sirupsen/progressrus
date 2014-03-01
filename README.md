@@ -1,4 +1,4 @@
-# Progressrus [![Build Status](https://travis-ci.org/Sirupsen/progressrus.png?branch=master)](https://travis-ci.org/Sirupsen/progressrus) [![Code Climate](https://codeclimate.com/github/Sirupsen/progressrus.png)](https://codeclimate.com/github/Sirupsen/progressrus)
+# Progressrus [![Build Status](https://travis-ci.org/Sirupsen/progressrus.png?branch=master)](https://travis-ci.org/Sirupsen/progressrus) [![Coverage Status](https://coveralls.io/repos/Sirupsen/progressrus/badge.png?branch=master)](https://coveralls.io/r/Sirupsen/progressrus?branch=master)
 
 `Progressrus` provides progress status of long-running jobs. The progress is
 stored in persistence layer. Progressrus currently ships with a Redis adapter,
