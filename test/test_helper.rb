@@ -1,3 +1,6 @@
+require 'coveralls'
+Coveralls.wear!
+
 require 'minitest/unit'
 require 'minitest/autorun'
 require "mocha/setup"
