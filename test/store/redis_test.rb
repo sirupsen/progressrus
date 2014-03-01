@@ -41,7 +41,7 @@ class RedisStoreTest < Minitest::Unit::TestCase
   	@store.persist(@progress)
   	@store.persist(@another_progress)
   	actual = @store.scope(@scope)
-  	
+
   	assert_equal @progress.id, actual['oemg'].id
   	assert_equal @another_progress.id, actual['oemg-two'].id
   end
@@ -74,13 +74,13 @@ class RedisStoreTest < Minitest::Unit::TestCase
   	@store.persist(@another_progress)
 
 	  @store.flush(@scope, 'oemg')
-  	
+
   	assert_equal nil, @store.find(@scope, 'oemg')
   	assert @store.find(@scope, 'oemg-two')
   end
 
   def test_initializes_name_to_redis
-  	assert_equal :redis, @store.name 
+  	assert_equal :redis, @store.name
   end
 
   def test_persist_should_not_write_by_default
@@ -92,7 +92,7 @@ class RedisStoreTest < Minitest::Unit::TestCase
 
   def test_persist_should_write_if_forced
     @store.redis.expects(:hset).twice
-    
+
     @store.persist(@progress)
     @store.persist(@progress, force: true)
   end
