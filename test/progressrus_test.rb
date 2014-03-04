@@ -84,6 +84,30 @@ class ProgressrusTest < Minitest::Unit::TestCase
     assert_equal 0, @progress.percentage    
   end
 
+  def test_tick_with_error_should_increment_count_and_error_count
+    @progress.tick(error: true)
+    assert_equal 1, @progress.count
+    assert_equal 1, @progress.errors
+  end
+
+  def test_tick_with_error_should_add_ticks_to_count_and_error_count
+    @progress.tick(50, error: true)
+    assert_equal 50, @progress.count
+    assert_equal 50, @progress.errors
+  end
+
+  def test_tick_with_some_errors
+    @progress.tick
+    @progress.tick(error: true)
+    assert_equal 2, @progress.count
+    assert_equal 1, @progress.errors
+  end
+
+  def test_tick_with_error_should_set_started_at
+    @progress.tick(error: true)
+    assert_instance_of Time, @progress.started_at
+  end
+
   def test_percentage_should_be_able_to_return_more_than_1
     @progress.tick(120)
 
@@ -118,7 +142,7 @@ class ProgressrusTest < Minitest::Unit::TestCase
       total: 100, 
       params: { job_id: 'oemg' }
     )
-    
+
     serialization = {
       name: 'Wally',
       id: 'oemg',
@@ -127,10 +151,11 @@ class ProgressrusTest < Minitest::Unit::TestCase
       params: { job_id: 'oemg' },
       started_at: nil,
       completed_at: nil,
-      count: 0
+      count: 0,
+      errors: 0
     }
 
-    assert_equal serialization, progress.to_serializeable    
+    assert_equal serialization, progress.to_serializeable
   end
 
   def test_complete_should_set_completed_at_and_persist
