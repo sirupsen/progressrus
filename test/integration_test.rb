@@ -34,4 +34,29 @@ class IntegrationTest < Minitest::Unit::TestCase
     assert_equal [20, 50], ticks.map(&:total).sort
     assert_equal [1,1], ticks.map(&:count)
   end
+
+  def test_tick_on_enumerable
+    a = (0..10)
+    b = a.with_progress(scope: "walrus").map(&:to_i)
+
+    ticks = Progressrus.scope(["walrus"]).values
+
+    assert_equal a.to_a, b
+    assert_equal 1, ticks.length
+    assert_equal a.size, ticks.first.total
+    assert_instance_of Time, ticks.first.completed_at
+  end
+
+  def test_tick_on_enumerable_calls_fail_on_exception
+    a = (0..10)
+
+    assert_raises ArgumentError do
+      a.with_progress(scope: "walrus").each do
+        raise ArgumentError
+      end
+    end
+
+    ticks = Progressrus.scope(["walrus"]).values
+    assert_instance_of Time, ticks.first.failed_at
+  end
 end
