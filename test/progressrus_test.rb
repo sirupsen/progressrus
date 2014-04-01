@@ -267,4 +267,20 @@ class ProgressrusTest < Minitest::Unit::TestCase
 
     assert_instance_of Time, @progress.started_at
   end
+
+  def test_flush_should_flush_a_progressrus_by_scope_and_id
+    @progress.tick
+
+    Progressrus.flush(@progress.scope, @progress.id)
+
+    assert_nil Progressrus.find(@progress.scope, @progress.id)
+  end
+
+  def test_flush_should_flush_a_progressrus_scope_without_an_id
+    @progress.tick
+
+    Progressrus.flush(@progress.scope)
+
+    assert_equal({}, Progressrus.scope(@progress.scope))
+  end
 end

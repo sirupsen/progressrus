@@ -20,6 +20,10 @@ class Progressrus
     def find(scope, id, store: :first)
       stores.find_by_name(store).find(scope, id)
     end
+
+    def flush(scope, id = nil, store: :first)
+      stores.find_by_name(store).flush(scope, id)
+    end
   end
 
   attr_reader :name, :scope, :total, :id, :params, :store, :count, 
