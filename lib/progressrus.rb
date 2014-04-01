@@ -68,6 +68,10 @@ class Progressrus
     persist(force: true)
   end
 
+  def flush
+    stores.each { |store| store.flush(scope, id) }
+  end
+
   def to_serializeable
     raise ArgumentError, "Total must be set before first tick." unless total
 

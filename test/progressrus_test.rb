@@ -283,4 +283,12 @@ class ProgressrusTest < Minitest::Unit::TestCase
 
     assert_equal({}, Progressrus.scope(@progress.scope))
   end
+
+  def test_flush_instance_of_progressrus
+    @progress.tick
+
+    @progress.flush
+
+    assert_nil Progressrus.find(@progress.scope, @progress.id)
+  end
 end
