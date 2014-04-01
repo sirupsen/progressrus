@@ -20,6 +20,10 @@ class Progressrus
     def find(scope, id, store: :first)
       stores.find_by_name(store).find(scope, id)
     end
+
+    def flush(scope, id = nil, store: :first)
+      stores.find_by_name(store).flush(scope, id)
+    end
   end
 
   attr_reader :name, :scope, :total, :id, :params, :store, :count, 
@@ -62,6 +66,10 @@ class Progressrus
     @started_at ||= now
     @completed_at = now
     persist(force: true)
+  end
+
+  def flush
+    stores.each { |store| store.flush(scope, id) }
   end
 
   def to_serializeable
