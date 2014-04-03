@@ -118,7 +118,7 @@ class ProgressrusTest < Minitest::Unit::TestCase
       total: 100, 
       params: { job_id: 'oemg' }
     )
-    
+
     serialization = {
       name: 'Wally',
       id: 'oemg',
@@ -127,6 +127,7 @@ class ProgressrusTest < Minitest::Unit::TestCase
       params: { job_id: 'oemg' },
       started_at: nil,
       completed_at: nil,
+      failed_at: nil,
       count: 0
     }
 
@@ -290,5 +291,35 @@ class ProgressrusTest < Minitest::Unit::TestCase
     @progress.flush
 
     assert_nil Progressrus.find(@progress.scope, @progress.id)
+  end
+
+  def test_call_with_progress_on_enumerable_as_final_in_chain
+    a = [1,2,3]
+    Progressrus.any_instance.expects(:tick).times(a.count)
+
+    b = []
+    a.each.with_progress do |number|
+      b << number
+    end
+
+    assert_equal a, b
+  end
+
+  def test_call_with_progress_on_enumerable_in_middle_of_chain
+    a = [1,2,3]
+    Progressrus.any_instance.expects(:tick).times(a.count)
+
+    b = a.each.with_progress.map { |number| number }
+
+    assert_equal a, b
+  end
+
+  def test_fail_should_set_failed_at_and_persist
+    now = Time.now
+    @progress.expects(:persist)
+
+    @progress.fail(now: Time.now)
+
+    assert_equal now.to_i, @progress.failed_at.to_i
   end
 end

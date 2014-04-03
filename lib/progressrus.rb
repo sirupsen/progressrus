@@ -5,6 +5,7 @@ require 'time'
 require_relative "progressrus/store"
 require_relative "progressrus/store/base"
 require_relative "progressrus/store/redis"
+require_relative "progressrus/core_ext/enumerable"
 
 class Progressrus
   class << self
@@ -27,16 +28,17 @@ class Progressrus
   end
 
   attr_reader :name, :scope, :total, :id, :params, :store, :count, 
-    :started_at, :completed_at, :stores
+    :started_at, :completed_at, :failed_at, :stores
 
   alias_method :completed?, :completed_at
   alias_method :started?,   :started_at
+  alias_method :failed?,    :failed_at
 
   attr_writer :params
 
   def initialize(scope: "progressrus", total: nil, name: nil, 
     id: SecureRandom.uuid, params: {}, stores: Progressrus.stores,
-    completed_at: nil, started_at: nil, count: 0)
+    completed_at: nil, started_at: nil, count: 0, failed_at: nil)
 
     raise ArgumentError, "Total cannot be zero or negative." if total && total <= 0
 
@@ -50,6 +52,7 @@ class Progressrus
 
     @started_at   = parse_time(started_at)
     @completed_at = parse_time(completed_at)
+    @failed_at    = parse_time(failed_at)
   end
 
   def tick(ticks = 1, now: Time.now)
@@ -72,6 +75,12 @@ class Progressrus
     stores.each { |store| store.flush(scope, id) }
   end
 
+  def fail(now: Time.now)
+    @started_at ||= now
+    @failed_at = now
+    persist(force: true)
+  end
+
   def to_serializeable
     raise ArgumentError, "Total must be set before first tick." unless total
 
@@ -81,6 +90,7 @@ class Progressrus
       scope:        scope,
       started_at:   started_at,
       completed_at: completed_at,
+      failed_at:    failed_at,
       count:        count,
       total:        total,
       params:       params

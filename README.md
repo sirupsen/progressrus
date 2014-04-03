@@ -38,7 +38,22 @@ Instrument by creating a `Progressrus` object with the `scope` and `total` amoun
 records to be processed:
 
 ```ruby
-class MaintenacegProcessRecords
+class MaintenanceProcessRecords
+  def self.perform(record_ids, user_id)
+    Record.where(id: record_ids)
+      .enum_for(:find_each)
+      .with_progress(scope: [:user, user_id], total: # get this somehow, unless you're on rails 4.1) do |record|
+      record.do_expensive_things
+    end
+  end
+end
+```
+
+You can also use the slightly more flexible lower-level API, which is useful in
+some cases:
+
+```ruby
+class MaintenanceProcessRecords
   def self.perform(record_ids, user_id)
     # Construct the pace object.
     progress = Progressrus.new(scope: [:user, user_id], total: record_ids.count)
