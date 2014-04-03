@@ -44,6 +44,7 @@ class IntegrationTest < Minitest::Unit::TestCase
     assert_equal a.to_a, b
     assert_equal 1, ticks.length
     assert_equal a.size, ticks.first.total
+    assert_equal a.size, ticks.first.count
     assert_instance_of Time, ticks.first.completed_at
   end
 
@@ -57,6 +58,8 @@ class IntegrationTest < Minitest::Unit::TestCase
     end
 
     ticks = Progressrus.scope(["walrus"]).values
+
+    assert_equal 0, ticks.first.count
     assert_instance_of Time, ticks.first.failed_at
   end
 end
