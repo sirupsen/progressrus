@@ -318,8 +318,36 @@ class ProgressrusTest < Minitest::Unit::TestCase
     now = Time.now
     @progress.expects(:persist)
 
-    @progress.fail(now: Time.now)
+    @progress.fail(now: now)
 
     assert_equal now.to_i, @progress.failed_at.to_i
+  end
+
+  def test_status_returns_completed_when_job_is_completed
+    @progress.complete
+
+    assert_equal :completed, @progress.status
+  end
+
+  def test_status_returns_failed_when_job_has_failed
+    @progress.fail
+
+    assert_equal :failed, @progress.status
+  end
+
+  def test_status_returns_running_when_job_hasnt_failed_or_completed
+    @progress.tick
+
+    assert_equal :running, @progress.status
+  end
+
+  def test_status_returns_started_when_job_hasnt_ticked
+    assert_equal :started, @progress.status
+  end
+
+  def test_running_returns_true_when_job_has_ticked
+    @progress.tick
+
+    assert @progress.running?
   end
 end

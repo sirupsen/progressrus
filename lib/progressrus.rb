@@ -75,6 +75,17 @@ class Progressrus
     stores.each { |store| store.flush(scope, id) }
   end
 
+  def status
+    return :completed if completed?
+    return :failed if failed?
+    return :running if running?
+    :started
+  end
+
+  def running?
+    count > 0
+  end
+
   def fail(now: Time.now)
     @started_at ||= now
     @failed_at = now
