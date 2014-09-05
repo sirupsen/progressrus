@@ -81,11 +81,6 @@ class ProgressrusTest < Minitest::Unit::TestCase
     assert_equal nil, progress.eta
   end
 
-  def test_eta_should_return_nil_if_no_count
-    progress = Progressrus.new
-    assert_equal nil, progress.eta
-  end
-
   def test_eta_should_return_time_in_future_based_on_time_elapsed
     time = Time.now
     @progress.tick(10, now: time - 10)
