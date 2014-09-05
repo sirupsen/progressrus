@@ -17,7 +17,7 @@ class ProgressrusTest < Minitest::Unit::TestCase
     Progressrus.stores << Progressrus::Store::Base.new
     assert_instance_of Progressrus::Store::Base, Progressrus.stores[1]
   end
-  
+
   def test_scope_should_initialize_with_symbol_or_string
     progressrus = Progressrus.new(scope: :walrus)
     assert_equal ['walrus'], progressrus.scope
@@ -30,9 +30,9 @@ class ProgressrusTest < Minitest::Unit::TestCase
 
   def test_initialize_with_name_should_use_name
     progressrus = Progressrus.new(name: 'Wally')
-    assert_equal 'Wally', progressrus.name    
+    assert_equal 'Wally', progressrus.name
   end
-  
+
   def test_initialize_without_name_should_use_id
     progressrus = Progressrus.new(id: 'oemg')
     assert_equal 'oemg', progressrus.name
@@ -42,7 +42,7 @@ class ProgressrusTest < Minitest::Unit::TestCase
     @progress.tick
     assert @progress.started_at
   end
-  
+
   def test_tick_should_not_set_started_at_if_zero_but_persist
     @progress.expects(:persist).once
     @progress.tick(0)
@@ -57,6 +57,28 @@ class ProgressrusTest < Minitest::Unit::TestCase
   def test_tick_should_increment_count
     @progress.tick(50)
     assert_equal 50, @progress.count
+  end
+
+  def test_error_should_call_tick
+    @progress.expects(:tick).once
+    @progress.error
+  end
+
+  def test_error_should_increment_error_count_and_count_by_one_if_not_specified
+    @progress.error
+    assert_equal 1, @progress.error_count
+    assert_equal 1, @progress.count
+  end
+
+  def test_error_should_increment_error_count_and_count
+    @progress.error(25)
+    assert_equal 25, @progress.error_count
+    assert_equal 25, @progress.count
+  end
+
+  def test_eta_should_return_nil_if_no_count
+    progress = Progressrus.new
+    assert_equal nil, progress.eta
   end
 
   def test_eta_should_return_nil_if_no_count
@@ -81,7 +103,7 @@ class ProgressrusTest < Minitest::Unit::TestCase
   end
 
   def test_percentage_with_no_count_should_be_zero
-    assert_equal 0, @progress.percentage    
+    assert_equal 0, @progress.percentage
   end
 
   def test_percentage_should_be_able_to_return_more_than_1
@@ -91,7 +113,7 @@ class ProgressrusTest < Minitest::Unit::TestCase
   end
 
   def test_percentage_should_be_0_if_total_0
-    assert_equal 0, @progress.percentage  
+    assert_equal 0, @progress.percentage
   end
 
   def test_elapsed_should_return_the_delta_between_now_and_started_at
@@ -106,32 +128,33 @@ class ProgressrusTest < Minitest::Unit::TestCase
   def test_to_serializeable_should_raise_if_no_total
     @progress.instance_variable_set(:@total, nil)
     assert_raises ArgumentError do
-      @progress.to_serializeable      
-    end 
+      @progress.to_serializeable
+    end
   end
 
   def test_to_serializeable_should_return_a_hash_of_options
     progress = Progressrus.new(
       name: 'Wally',
       id: 'oemg',
-      scope: ['walruses', 'forall'], 
-      total: 100, 
+      scope: ['walruses', 'forall'],
+      total: 100,
       params: { job_id: 'oemg' }
     )
 
     serialization = {
       name: 'Wally',
       id: 'oemg',
-      scope: ['walruses', 'forall'], 
-      total: 100, 
+      scope: ['walruses', 'forall'],
+      total: 100,
       params: { job_id: 'oemg' },
       started_at: nil,
       completed_at: nil,
       failed_at: nil,
-      count: 0
+      count: 0,
+      error_count: 0
     }
 
-    assert_equal serialization, progress.to_serializeable    
+    assert_equal serialization, progress.to_serializeable
   end
 
   def test_complete_should_set_completed_at_and_persist

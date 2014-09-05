@@ -27,8 +27,8 @@ class Progressrus
     end
   end
 
-  attr_reader :name, :scope, :total, :id, :params, :store, :count, 
-    :started_at, :completed_at, :failed_at, :stores
+  attr_reader :name, :scope, :total, :id, :params, :store, :count,
+    :started_at, :completed_at, :failed_at, :stores, :error_count
 
   alias_method :completed?, :completed_at
   alias_method :started?,   :started_at
@@ -36,9 +36,10 @@ class Progressrus
 
   attr_writer :params
 
-  def initialize(scope: "progressrus", total: nil, name: nil, 
+  def initialize(scope: "progressrus", total: nil, name: nil,
     id: SecureRandom.uuid, params: {}, stores: Progressrus.stores,
-    completed_at: nil, started_at: nil, count: 0, failed_at: nil)
+    completed_at: nil, started_at: nil, count: 0, failed_at: nil,
+    error_count: 0)
 
     raise ArgumentError, "Total cannot be zero or negative." if total && total <= 0
 
@@ -49,6 +50,7 @@ class Progressrus
     @params       = params
     @stores       = stores
     @count        = count
+    @error_count  = error_count
 
     @started_at   = parse_time(started_at)
     @completed_at = parse_time(completed_at)
@@ -59,6 +61,12 @@ class Progressrus
     @started_at ||= now if ticks >= 1
     @count += ticks
     persist
+  end
+
+  def error(ticks = 1, now: Time.now)
+    @error_count ||= 0
+    @error_count += ticks
+    tick(ticks, now: now)
   end
 
   def count=(new_count, **args)
@@ -104,7 +112,8 @@ class Progressrus
       failed_at:    failed_at,
       count:        count,
       total:        total,
-      params:       params
+      params:       params,
+      error_count:  error_count
     }
   end
 

@@ -60,10 +60,15 @@ class MaintenanceProcessRecords
 
     # Start processing the records!
     Record.where(id: record_ids).find_each do |record|
-      record.do_expensive_things
+      begin
+        record.do_expensive_things
 
-      # Does a single tick, updates the data store every x seconds this is called.
-      progress.tick
+        # Does a single tick, updates the data store every x seconds this is called.
+        progress.tick
+      rescue
+        # Increments the error count if the above failed
+        progress.error
+      end
     end
 
     # Force an update to the data store and set :completed_at to Time.now
@@ -79,8 +84,8 @@ To query for the progress of jobs for a specific scope:
 ```ruby
 > Progressrus.all(["walrus", '1234'])
 #=> [
-  #<Progressrus::Progress:0x007f0fdc8ab888 @scope=["walrus", "1234"], @total=50, @id="narwhal", @interval=2, @params={:count=>0, :started_at=>"2013-12-12 18:09:44 +0000", :completed_at=>nil, :name=>"oemg-test-2"}, @count=0, @started_at=2013-12-12 18:09:44 +0000, @persisted_at=2013-12-12 18:09:41 +0000, @store=#<Progressrus::Store::Redis:0x007f0fdc894c28 @redis=#<Redis client v3.0.6 for redis://127.0.0.1:6379/0>, @options={:expire=>1800, :prefix=>"progressrus"}>, @completed_at=nil>,
-  #<Progressrus::Progress:0x007f0fdc8ab4a0 @scope=["walrus", "1234"], @total=100, @id="oemg", @interval=2, @params={:count=>0, :started_at=>"2013-12-12 18:09:44 +0000", :completed_at=>nil, :name=>"oemg-test"}, @count=0, @started_at=2013-12-12 18:09:44 +0000, @persisted_at=2013-12-12 18:09:41 +0000, @store=#<Progressrus::Store::Redis:0x007f0fdc894c28 @redis=#<Redis client v3.0.6 for redis://127.0.0.1:6379/0>, @options={:expire=>1800, :prefix=>"progressrus"}>, @completed_at=nil>
+  #<Progressrus::Progress:0x007f0fdc8ab888 @scope=["walrus", "1234"], @total=50, @id="narwhal", @interval=2, @params={:count=>0, :started_at=>"2013-12-12 18:09:44 +0000", :completed_at=>nil, :name=>"oemg-test-2"}, @count=0, @error_count=0, @started_at=2013-12-12 18:09:44 +0000, @persisted_at=2013-12-12 18:09:41 +0000, @store=#<Progressrus::Store::Redis:0x007f0fdc894c28 @redis=#<Redis client v3.0.6 for redis://127.0.0.1:6379/0>, @options={:expire=>1800, :prefix=>"progressrus"}>, @completed_at=nil>,
+  #<Progressrus::Progress:0x007f0fdc8ab4a0 @scope=["walrus", "1234"], @total=100, @id="oemg", @interval=2, @params={:count=>0, :started_at=>"2013-12-12 18:09:44 +0000", :completed_at=>nil, :name=>"oemg-test"}, @count=0, @error_count=0, @started_at=2013-12-12 18:09:44 +0000, @persisted_at=2013-12-12 18:09:41 +0000, @store=#<Progressrus::Store::Redis:0x007f0fdc894c28 @redis=#<Redis client v3.0.6 for redis://127.0.0.1:6379/0>, @options={:expire=>1800, :prefix=>"progressrus"}>, @completed_at=nil>
 ]
 ```
 
@@ -95,7 +100,7 @@ To query for the progress of a specific job:
 
 ```ruby
 > Progressrus.find(["walrus", '1234'], 'narwhal')
-#=> #<Progressrus::Progress:0x007f0fdc8ab888 @scope=["walrus", "1234"], @total=50, @id="narwhal", @interval=2, @params={:count=>0, :started_at=>"2013-12-12 18:09:44 +0000", :completed_at=>nil, :name=>"oemg-test-2"}, @count=0, @started_at=2013-12-12 18:09:44 +0000, @persisted_at=2013-12-12 18:09:41 +0000, @store=#<Progressrus::Store::Redis:0x007f0fdc894c28 @redis=#<Redis client v3.0.6 for redis://127.0.0.1:6379/0>, @options={:expire=>1800, :prefix=>"progressrus"}>, @completed_at=nil>
+#=> #<Progressrus::Progress:0x007f0fdc8ab888 @scope=["walrus", "1234"], @total=50, @id="narwhal", @interval=2, @params={:count=>0, :started_at=>"2013-12-12 18:09:44 +0000", :completed_at=>nil, :name=>"oemg-test-2"}, @count=0, @error_count=0, @started_at=2013-12-12 18:09:44 +0000, @persisted_at=2013-12-12 18:09:41 +0000, @store=#<Progressrus::Store::Redis:0x007f0fdc894c28 @redis=#<Redis client v3.0.6 for redis://127.0.0.1:6379/0>, @options={:expire=>1800, :prefix=>"progressrus"}>, @completed_at=nil>
 ```
 
 ## Todo
