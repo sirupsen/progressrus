@@ -59,21 +59,19 @@ class ProgressrusTest < Minitest::Unit::TestCase
     assert_equal 50, @progress.count
   end
 
-  def test_error_should_call_tick
-    @progress.expects(:tick).once
+  def test_error_should_not_call_tick
+    @progress.expects(:tick).never
     @progress.error
   end
 
-  def test_error_should_increment_error_count_and_count_by_one_if_not_specified
+  def test_error_should_increment_error_count_by_one_if_amount_not_specified
     @progress.error
     assert_equal 1, @progress.error_count
-    assert_equal 1, @progress.count
   end
 
-  def test_error_should_increment_error_count_and_count
+  def test_error_should_increment_error_count
     @progress.error(25)
     assert_equal 25, @progress.error_count
-    assert_equal 25, @progress.count
   end
 
   def test_eta_should_return_nil_if_no_count

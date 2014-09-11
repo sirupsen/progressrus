@@ -66,7 +66,6 @@ class Progressrus
   def error(ticks = 1, now: Time.now)
     @error_count ||= 0
     @error_count += ticks
-    tick(ticks, now: now)
   end
 
   def count=(new_count, **args)
