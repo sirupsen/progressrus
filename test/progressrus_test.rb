@@ -38,6 +38,11 @@ class ProgressrusTest < Minitest::Unit::TestCase
     assert_equal 'oemg', progressrus.name
   end
 
+  def test_initialize_with_persist
+    Progressrus.any_instance.expects(:persist).with(force: true).once
+    progressrus = Progressrus.new(persist: true)
+  end
+
   def test_tick_should_set_started_at_if_not_already_set_and_tick_greater_than_zero
     @progress.tick
     assert @progress.started_at
