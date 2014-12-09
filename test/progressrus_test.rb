@@ -123,11 +123,14 @@ class ProgressrusTest < Minitest::Unit::TestCase
     assert_equal 10, elapsed
   end
 
-  def test_to_serializeable_should_raise_if_no_total
+  def test_to_serializeable_set_total_to_1_if_no_total
     @progress.instance_variable_set(:@total, nil)
-    assert_raises ArgumentError do
-      @progress.to_serializeable
-    end
+    assert_equal 1, @progress.to_serializeable[:total]
+  end
+
+  def test_total_when_total_is_nil_is_1
+    @progress.instance_variable_set(:@total, nil)
+    assert_equal 1, @progress.total
   end
 
   def test_to_serializeable_should_return_a_hash_of_options

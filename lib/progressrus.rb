@@ -102,8 +102,6 @@ class Progressrus
   end
 
   def to_serializeable
-    raise ArgumentError, "Total must be set before first tick." unless total
-
     {
       name:         name,
       id:           id,
@@ -121,6 +119,10 @@ class Progressrus
   def total=(new_total)
     raise ArgumentError, "Total cannot be zero or negative." if new_total <= 0
     @total = new_total
+  end
+
+  def total
+    @total ||= 1
   end
 
   def elapsed(now: Time.now)
