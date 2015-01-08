@@ -28,7 +28,7 @@ class Progressrus
   end
 
   attr_reader :name, :scope, :total, :id, :params, :store, :count,
-    :started_at, :completed_at, :failed_at, :stores, :error_count
+    :started_at, :completed_at, :failed_at, :expires_at, :stores, :error_count
 
   alias_method :completed?, :completed_at
   alias_method :started?,   :started_at
@@ -39,7 +39,7 @@ class Progressrus
   def initialize(scope: "progressrus", total: nil, name: nil,
     id: SecureRandom.uuid, params: {}, stores: Progressrus.stores,
     completed_at: nil, started_at: nil, count: 0, failed_at: nil,
-    error_count: 0, persist: false)
+    error_count: 0, persist: false, expires_at: nil)
 
     raise ArgumentError, "Total cannot be zero or negative." if total && total <= 0
 
@@ -55,6 +55,7 @@ class Progressrus
     @started_at   = parse_time(started_at)
     @completed_at = parse_time(completed_at)
     @failed_at    = parse_time(failed_at)
+    @expires_at   = parse_time(expires_at)
 
     persist(force: true) if persist
   end
@@ -109,6 +110,7 @@ class Progressrus
       started_at:   started_at,
       completed_at: completed_at,
       failed_at:    failed_at,
+      expires_at:   expires_at,
       count:        count,
       total:        total,
       params:       params,
@@ -140,6 +142,10 @@ class Progressrus
     left = (total - count)
     seconds_to_finished = left / processed_per_second
     now + seconds_to_finished
+  end
+
+  def expired?
+    expires_at && expires_at < Time.now
   end
 
   private
