@@ -386,26 +386,24 @@ class ProgressrusTest < Minitest::Unit::TestCase
   end
 
   def test_expired_returns_true_if_expires_at_in_past
-    Timecop.freeze(Time.now) do
-      progress = Progressrus.new(
-        id: 'oemg',
-        scope: ['walruses', 'forall'],
-        expires_at: Time.now - 3600
-      )
+    time = Time.now
+    progress = Progressrus.new(
+      id: 'oemg',
+      scope: ['walruses', 'forall'],
+      expires_at: time - 3600
+    )
 
-      assert progress.expired?
-    end
+    assert progress.expired?(now: time)
   end
 
   def test_expired_returns_false_if_expires_at_in_the_future
-    Timecop.freeze(Time.now) do
-      progress = Progressrus.new(
-        id: 'oemg',
-        scope: ['walruses', 'forall'],
-        expires_at: Time.now + 3600
-      )
+    time = Time.now
+    progress = Progressrus.new(
+      id: 'oemg',
+      scope: ['walruses', 'forall'],
+      expires_at: time + 3600
+    )
 
-      refute progress.expired?
-    end
+    refute progress.expired?(now: time)
   end
 end

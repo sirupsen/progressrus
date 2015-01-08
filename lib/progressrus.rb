@@ -144,8 +144,8 @@ class Progressrus
     now + seconds_to_finished
   end
 
-  def expired?
-    expires_at && expires_at < Time.now
+  def expired?(now: Time.now)
+    expires_at && expires_at < now
   end
 
   private
