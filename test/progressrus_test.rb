@@ -152,7 +152,8 @@ class ProgressrusTest < Minitest::Unit::TestCase
       completed_at: nil,
       failed_at: nil,
       count: 0,
-      error_count: 0
+      error_count: 0,
+      expires_at: nil
     }
 
     assert_equal serialization, progress.to_serializeable
@@ -373,5 +374,36 @@ class ProgressrusTest < Minitest::Unit::TestCase
     @progress.tick
 
     assert @progress.running?
+  end
+
+  def test_expired_returns_false_when_nil
+    progress = Progressrus.new(
+      id: 'oemg',
+      scope: ['walruses', 'forall']
+    )
+
+    refute progress.expired?
+  end
+
+  def test_expired_returns_true_if_expires_at_in_past
+    time = Time.now
+    progress = Progressrus.new(
+      id: 'oemg',
+      scope: ['walruses', 'forall'],
+      expires_at: time - 3600
+    )
+
+    assert progress.expired?(now: time)
+  end
+
+  def test_expired_returns_false_if_expires_at_in_the_future
+    time = Time.now
+    progress = Progressrus.new(
+      id: 'oemg',
+      scope: ['walruses', 'forall'],
+      expires_at: time + 3600
+    )
+
+    refute progress.expired?(now: time)
   end
 end
