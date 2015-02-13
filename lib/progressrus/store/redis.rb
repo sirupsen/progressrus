@@ -1,6 +1,8 @@
 class Progressrus
   class Store
     class Redis < Base
+      BACKEND_EXCEPTIONS = [ ::Redis::BaseError ]
+
       attr_reader :redis, :interval, :persisted_at, :prefix, :name
 
       def initialize(instance, prefix: "progressrus", interval: 1, now: Time.now)
@@ -16,6 +18,8 @@ class Progressrus
           redis.hset(key(progress.scope), progress.id, progress.to_serializeable.to_json)
           @persisted_ats[progress.scope][progress.id] = now
         end
+      rescue *BACKEND_EXCEPTIONS => e
+        raise Progressrus::Store::BackendError.new(e)
       end
 
       def scope(scope)
@@ -23,6 +27,8 @@ class Progressrus
         scope.each_pair { |id, value|
           scope[id] = Progressrus.new(deserialize(value))
         }
+      rescue *BACKEND_EXCEPTIONS => e
+        raise Progressrus::Store::BackendError.new(e)
       end
 
       def find(scope, id)
@@ -30,6 +36,8 @@ class Progressrus
         return unless value
 
         Progressrus.new(deserialize(value))
+      rescue *BACKEND_EXCEPTIONS => e
+        raise Progressrus::Store::BackendError.new(e)
       end
 
       def flush(scope, id = nil)
@@ -38,9 +46,12 @@ class Progressrus
         else
           redis.del(key(scope))
         end
+      rescue *BACKEND_EXCEPTIONS => e
+        raise Progressrus::Store::BackendError.new(e)
       end
 
       private
+
       def key(scope)
         "#{prefix}:#{scope.join(":")}"
       end

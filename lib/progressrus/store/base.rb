@@ -1,6 +1,7 @@
 class Progressrus
   class Store
     class NotImplementedError < StandardError; end
+    class BackendError < StandardError; end
 
     class Base
       def persist(progress)
