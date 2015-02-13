@@ -149,8 +149,14 @@ class Progressrus
   end
 
   private
+
   def persist(force: false)
-    stores.each { |store| store.persist(self, force: force) }
+    stores.each do |store|
+      begin
+        store.persist(self, force: force)
+      rescue Progressrus::Store::BackendError => e
+      end
+    end
   end
 
   def parse_time(time)

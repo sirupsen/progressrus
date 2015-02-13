@@ -192,6 +192,13 @@ class ProgressrusTest < Minitest::Unit::TestCase
     @progress.tick
   end
 
+  def test_tick_and_complete_dont_raise_if_store_is_unavailable
+    store = Progressrus.stores.first
+    store.redis.expects(:hset).at_least_once.raises(::Redis::BaseError)
+    @progress.tick
+    @progress.complete
+  end
+
   def test_should_not_be_able_to_initialize_with_total_0
     assert_raises ArgumentError do
       Progressrus.new(total: 0)
