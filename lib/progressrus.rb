@@ -153,7 +153,7 @@ class Progressrus
   def persist(force: false)
     stores.each do |store|
       begin
-        store.persist(self, force: force)
+        store.persist(self, force: force, expires_at: expires_at)
       rescue Progressrus::Store::BackendError => e
       end
     end
