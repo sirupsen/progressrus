@@ -13,9 +13,15 @@ class Progressrus
         @prefix        = prefix
       end
 
-      def persist(progress, now: Time.now, force: false)
+      def persist(progress, now: Time.now, force: false, expires_at: nil)
         if outdated?(progress) || force
-          redis.hset(key(progress.scope), progress.id, progress.to_serializeable.to_json)
+          key_for_scope = key(progress.scope)
+
+          redis.pipelined do
+            redis.hset(key_for_scope, progress.id, progress.to_serializeable.to_json)
+            redis.expireat(key_for_scope, expires_at) if expires_at
+          end
+
           @persisted_ats[progress.scope][progress.id] = now
         end
       rescue *BACKEND_EXCEPTIONS => e
