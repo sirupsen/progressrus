@@ -1,6 +1,6 @@
 require_relative "../test_helper"
 
-class RedisStoreTest < Minitest::Unit::TestCase
+class RedisStoreTest < Minitest::Test
   def setup
   	@scope = ["walrus", "1234"]
     @progress = Progressrus.new(

@@ -1,6 +1,6 @@
 require_relative '../test_helper'
 
-class StoreRakeTest < Minitest::Unit::TestCase
+class StoreRakeTest < Minitest::Test
   def setup
     load File.expand_path("../../../tasks/redis_store.rake", __FILE__)
     Rake::Task.define_task(:environment)

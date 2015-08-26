@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class IntegrationTest < Minitest::Unit::TestCase
+class IntegrationTest < Minitest::Test
   def setup
     @progress = Progressrus.new(scope: "walrus", total: 20)
   end

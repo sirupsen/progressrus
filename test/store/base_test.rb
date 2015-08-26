@@ -1,6 +1,6 @@
 require_relative "../test_helper"
 
-class BaseStoreTest < Minitest::Unit::TestCase
+class BaseStoreTest < Minitest::Test
   def setup
     @base = Progressrus::Store::Base.new
   end
