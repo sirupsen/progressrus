@@ -5,6 +5,7 @@ require 'time'
 require_relative "progressrus/store"
 require_relative "progressrus/store/base"
 require_relative "progressrus/store/redis"
+require_relative "progressrus/store/progressbar"
 require_relative "progressrus/core_ext/enumerable"
 
 class Progressrus
