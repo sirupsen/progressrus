@@ -110,8 +110,15 @@ class ProgressrusTest < Minitest::Test
     assert_equal 1.2, @progress.percentage
   end
 
-  def test_percentage_should_be_0_if_total_0
+  def test_percentage_should_be_0_if_count_0
     assert_equal 0, @progress.percentage
+  end
+
+  def test_percentage_should_be_1_if_total_0
+    progress = Progressrus.new(total: 0)
+    assert_equal 1, progress.percentage
+    progress.tick
+    assert_equal 1, progress.percentage
   end
 
   def test_elapsed_should_return_the_delta_between_now_and_started_at
@@ -168,10 +175,9 @@ class ProgressrusTest < Minitest::Test
     assert_equal now.to_i, @progress.completed_at.to_i
   end
 
-  def test_should_not_be_able_to_set_total_to_0
-    assert_raises ArgumentError do
-      @progress.total = 0
-    end
+  def test_should_be_able_to_set_total_to_0
+    @progress.total = 0
+    assert_equal 0, @progress.total
   end
 
   def test_should_not_be_able_to_set_total_to_a_negative_number
@@ -199,10 +205,9 @@ class ProgressrusTest < Minitest::Test
     @progress.complete
   end
 
-  def test_should_not_be_able_to_initialize_with_total_0
-    assert_raises ArgumentError do
-      Progressrus.new(total: 0)
-    end
+  def test_should_be_able_to_initialize_with_total_0
+    progress = Progressrus.new(total: 0)
+    assert_equal 0, progress.total
   end
 
   def test_should_not_be_able_to_initialize_with_total_as_a_negative_number
