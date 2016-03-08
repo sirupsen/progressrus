@@ -42,7 +42,7 @@ class Progressrus
     completed_at: nil, started_at: nil, count: 0, failed_at: nil,
     error_count: 0, persist: false, expires_at: nil)
 
-    raise ArgumentError, "Total cannot be zero or negative." if total && total <= 0
+    raise ArgumentError, "Total cannot be negative." if total && total < 0
 
     @name         = name || id
     @scope        = Array(scope).map(&:to_s)
@@ -120,7 +120,7 @@ class Progressrus
   end
 
   def total=(new_total)
-    raise ArgumentError, "Total cannot be zero or negative." if new_total <= 0
+    raise ArgumentError, "Total cannot be negative." if new_total < 0
     @total = new_total
   end
 
@@ -133,7 +133,11 @@ class Progressrus
   end
 
   def percentage
-    count.to_f / total
+    if total > 0
+      count.to_f / total
+    else
+      1.0
+    end
   end
 
   def eta(now: Time.now)
