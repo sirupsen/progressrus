@@ -38,12 +38,14 @@ class RedisStoreTest < Minitest::Test
   end
 
   def test_scope_should_return_progressruses_indexed_by_id
-  	@store.persist(@progress)
-  	@store.persist(@another_progress)
-  	actual = @store.scope(@scope)
+    @store.persist(@progress)
+    @store.persist(@another_progress)
+    actual = @store.scope(@scope)
 
-  	assert_equal @progress.id, actual['oemg'].id
-  	assert_equal @another_progress.id, actual['oemg-two'].id
+    assert_equal @progress.id, actual['oemg'].id
+    assert actual['oemg'].persisted?
+    assert_equal @another_progress.id, actual['oemg-two'].id
+    assert actual['oemg-two'].persisted?
   end
 
   def test_scope_should_return_an_empty_hash_if_nothing_is_found
@@ -51,9 +53,10 @@ class RedisStoreTest < Minitest::Test
   end
 
   def test_find_should_return_a_single_progressrus_for_scope_and_id
-  	@store.persist(@progress)
-
-  	assert_equal @progress.id, @store.find(@scope, 'oemg').id
+    @store.persist(@progress)
+    stored_progress = @store.find(@scope, 'oemg')
+    assert_equal @progress.id, stored_progress.id
+    assert stored_progress.persisted?
   end
 
   def test_find_should_return_nil_if_nothing_is_found

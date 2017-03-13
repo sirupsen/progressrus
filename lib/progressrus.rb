@@ -40,7 +40,7 @@ class Progressrus
   def initialize(scope: "progressrus", total: nil, name: nil,
     id: SecureRandom.uuid, params: {}, stores: Progressrus.stores,
     completed_at: nil, started_at: nil, count: 0, failed_at: nil,
-    error_count: 0, persist: false, expires_at: nil)
+    error_count: 0, persist: false, expires_at: nil, persisted: false)
 
     raise ArgumentError, "Total cannot be negative." if total && total < 0
 
@@ -57,6 +57,7 @@ class Progressrus
     @completed_at = parse_time(completed_at)
     @failed_at    = parse_time(failed_at)
     @expires_at   = parse_time(expires_at)
+    @persisted    = persisted
 
     persist(force: true) if persist
   end
@@ -122,6 +123,8 @@ class Progressrus
   def total=(new_total)
     raise ArgumentError, "Total cannot be negative." if new_total < 0
     @total = new_total
+    persist(force: true) if persisted?
+    @total
   end
 
   def total
@@ -153,6 +156,10 @@ class Progressrus
     expires_at && expires_at < now
   end
 
+  def persisted?
+    @persisted
+  end
+
   private
 
   def persist(force: false)
@@ -162,6 +169,7 @@ class Progressrus
       rescue Progressrus::Store::BackendError => e
       end
     end
+    @persisted = true
   end
 
   def parse_time(time)

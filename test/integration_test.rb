@@ -21,6 +21,14 @@ class IntegrationTest < Minitest::Test
     assert_equal 1, tick.count
   end
 
+  def test_setting_total_after_persist_persists_total
+    progress = Progressrus.new(scope: ["walrus"], total: 0, persist: true, id: '123')
+    assert_equal 0, progress.total
+    progress.total = 20
+    progress = Progressrus.find(["walrus"], '123')
+    assert_equal 20, progress.total
+  end
+
   def test_create_multiple_ticks_and_see_them_in_redis
     @progress.tick
 
