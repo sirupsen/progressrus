@@ -63,7 +63,7 @@ class Progressrus
       end
 
       def deserialize(value)
-        JSON.parse(value, symbolize_names: true)
+        JSON.parse(value, symbolize_names: true).merge(persisted: true)
       end
 
       def outdated?(progress, now: Time.now)
