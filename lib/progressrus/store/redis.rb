@@ -19,7 +19,7 @@ class Progressrus
 
           redis.pipelined do
             redis.hset(key_for_scope, progress.id, progress.to_serializeable.to_json)
-            redis.expireat(key_for_scope, expires_at) if expires_at
+            redis.expireat(key_for_scope, expires_at.to_i) if expires_at
           end
 
           @persisted_ats[progress.scope][progress.id] = now
