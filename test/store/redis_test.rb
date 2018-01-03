@@ -60,7 +60,7 @@ class RedisStoreTest < Minitest::Test
   end
 
   def test_find_should_return_nil_if_nothing_is_found
-  	assert_equal nil, @store.find(@scope, 'oemg')
+  	assert_nil @store.find(@scope, 'oemg')
   end
 
   def test_flush_should_delete_by_scope
@@ -78,7 +78,7 @@ class RedisStoreTest < Minitest::Test
 
 	  @store.flush(@scope, 'oemg')
 
-  	assert_equal nil, @store.find(@scope, 'oemg')
+  	assert_nil @store.find(@scope, 'oemg')
   	assert @store.find(@scope, 'oemg-two')
   end
 
