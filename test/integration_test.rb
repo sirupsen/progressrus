@@ -70,4 +70,12 @@ class IntegrationTest < Minitest::Test
     assert_equal 0, ticks.first.count
     assert_instance_of Time, ticks.first.failed_at
   end
+
+  def test_unknown_count
+    progress = Progressrus.new(id: "omg", scope: ["walrus"], total: nil)
+    progress.tick
+
+    progress = Progressrus.find(["walrus"], "omg")
+    assert_nil progress.total
+  end
 end

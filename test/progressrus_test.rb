@@ -40,7 +40,7 @@ class ProgressrusTest < Minitest::Test
 
   def test_initialize_with_persist
     Progressrus.any_instance.expects(:persist).with(force: true).once
-    progressrus = Progressrus.new(persist: true)
+    Progressrus.new(persist: true)
   end
 
   def test_tick_should_set_started_at_if_not_already_set_and_tick_greater_than_zero
@@ -81,7 +81,7 @@ class ProgressrusTest < Minitest::Test
 
   def test_eta_should_return_nil_if_no_count
     progress = Progressrus.new
-    assert_equal nil, progress.eta
+    assert_nil progress.eta
   end
 
   def test_eta_should_return_time_in_future_based_on_time_elapsed
@@ -132,12 +132,9 @@ class ProgressrusTest < Minitest::Test
 
   def test_to_serializeable_set_total_to_1_if_no_total
     @progress.instance_variable_set(:@total, nil)
-    assert_equal 1, @progress.to_serializeable[:total]
-  end
 
-  def test_total_when_total_is_nil_is_1
-    @progress.instance_variable_set(:@total, nil)
-    assert_equal 1, @progress.total
+    assert @progress.to_serializeable.key?(:total)
+    assert_nil @progress.to_serializeable[:total]
   end
 
   def test_to_serializeable_should_return_a_hash_of_options
