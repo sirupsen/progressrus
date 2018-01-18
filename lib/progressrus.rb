@@ -127,10 +127,6 @@ class Progressrus
     @total
   end
 
-  def total
-    @total ||= 1
-  end
-
   def elapsed(now: Time.now)
     now - started_at
   end
