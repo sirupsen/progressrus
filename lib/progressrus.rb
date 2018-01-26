@@ -140,7 +140,7 @@ class Progressrus
   end
 
   def eta(now: Time.now)
-    return nil if count.to_i == 0
+    return if count.to_i == 0 || total.to_i == 0
 
     processed_per_second = (count.to_f / elapsed(now: now))
     left = (total - count)
