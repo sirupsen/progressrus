@@ -78,5 +78,6 @@ class IntegrationTest < Minitest::Test
     progress = Progressrus.find(["walrus"], "omg")
     assert_nil progress.total
     assert_nil progress.eta
+    assert_nil progress.percentage
   end
 end
