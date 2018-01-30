@@ -119,6 +119,13 @@ class ProgressrusTest < Minitest::Test
     assert_equal 0, @progress.percentage
   end
 
+  def test_percentage_should_be_nil_if_total_nil
+    progress = Progressrus.new(total: nil)
+    assert_nil progress.percentage
+    progress.tick
+    assert_nil progress.percentage
+  end
+
   def test_percentage_should_be_1_if_total_0
     progress = Progressrus.new(total: 0)
     assert_equal 1, progress.percentage

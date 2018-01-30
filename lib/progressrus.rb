@@ -132,6 +132,8 @@ class Progressrus
   end
 
   def percentage
+    return unless total
+
     if total > 0
       count.to_f / total
     else
