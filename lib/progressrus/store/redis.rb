@@ -3,7 +3,7 @@ class Progressrus
     class Redis < Base
       BACKEND_EXCEPTIONS = [ ::Redis::BaseError ]
 
-      attr_reader :redis, :interval, :persisted_at, :prefix, :name
+      attr_reader :redis, :interval, :prefix, :name
 
       def initialize(instance, prefix: "progressrus", interval: 1, now: Time.now)
         @name          = :redis

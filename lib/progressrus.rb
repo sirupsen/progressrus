@@ -164,7 +164,8 @@ class Progressrus
     stores.each do |store|
       begin
         store.persist(self, force: force, expires_at: expires_at)
-      rescue Progressrus::Store::BackendError => e
+      rescue Progressrus::Store::BackendError
+        # noop
       end
     end
     @persisted = true
