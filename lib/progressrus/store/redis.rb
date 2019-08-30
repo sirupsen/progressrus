@@ -59,7 +59,11 @@ class Progressrus
       private
 
       def key(scope)
-        "#{prefix}:#{scope.join(":")}"
+        if prefix.respond_to?(:call)
+          prefix.call(scope)
+        else
+          "#{prefix}:#{scope.join(":")}"
+        end
       end
 
       def deserialize(value)

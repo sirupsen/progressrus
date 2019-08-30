@@ -1,6 +1,11 @@
 require_relative "../test_helper"
 
 class RedisStoreTest < Minitest::Test
+  class PrefixClass
+    def self.call(scope)
+      "custom_prefix:#{scope.join(':')}"
+    end
+  end
   def setup
   	@scope = ["walrus", "1234"]
     @progress = Progressrus.new(
@@ -17,11 +22,19 @@ class RedisStoreTest < Minitest::Test
       name: "oemg-name-two"
     )
 
-    @store = Progressrus::Store::Redis.new(::Redis.new(host: ENV["PROGRESSRUS_REDIS_HOST"] || "localhost"))
+    @redis = ::Redis.new(host: ENV["PROGRESSRUS_REDIS_HOST"] || "localhost")
+
+    @store = Progressrus::Store::Redis.new(@redis)
   end
 
   def teardown
-  	@store.flush(@scope)
+    @store.flush(@scope)
+  end
+
+  def test_prefix_can_be_a_proc
+    store = Progressrus::Store::Redis.new(@redis, prefix: PrefixClass)
+    store.persist(@progress)
+    refute_empty(@redis.hgetall('custom_prefix:walrus:1234'))
   end
 
   def test_persist_should_set_key_value_if_outdated
@@ -99,5 +112,4 @@ class RedisStoreTest < Minitest::Test
     @store.persist(@progress)
     @store.persist(@progress, force: true)
   end
-
 end
