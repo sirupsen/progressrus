@@ -6,16 +6,23 @@ class ProgressrusTest < Minitest::Test
   end
 
   def teardown
-    Progressrus.stores.default!
+    Progressrus.clear_stores
+    Progressrus.add_store(:redis, Progressrus::Store::Redis.new(::Redis.new(host: ENV["PROGRESSRUS_REDIS_HOST"] || "localhost")))
   end
 
   def test_defaults_to_redis_store
-    assert_instance_of Progressrus::Store::Redis, Progressrus.stores.first
+    assert_instance_of Progressrus::Store::Redis, Progressrus.stores[:redis]
   end
 
   def test_add_to_store
-    Progressrus.stores << Progressrus::Store::Base.new
-    assert_instance_of Progressrus::Store::Base, Progressrus.stores[1]
+    Progressrus.add_store(:test, Progressrus::Store::Base.new)
+    assert_instance_of Progressrus::Store::Base, Progressrus.stores[:test]
+  end
+
+  def test_add_store_raise_error_when_invalid_store
+    assert_raises(Progressrus::InvalidStoreError) do
+      Progressrus.add_store(:test, mock)
+    end
   end
 
   def test_scope_should_initialize_with_symbol_or_string
@@ -196,19 +203,20 @@ class ProgressrusTest < Minitest::Test
   end
 
   def test_persist_yields_persist_to_each_store
-    mysql = mock()
+    mysql = mock_store
     mysql.expects(:persist).once
 
-    redis = Progressrus.stores.first
+    redis = Progressrus.stores[:redis]
     redis.expects(:persist).once
 
-    Progressrus.stores << mysql
+    Progressrus.add_store(:mysql, mysql)
 
-    @progress.tick
+    progress = Progressrus.new(scope: :progressrus, total: 100)
+    progress.tick
   end
 
   def test_tick_and_complete_dont_raise_if_store_is_unavailable
-    store = Progressrus.stores.first
+    store = Progressrus.stores[:redis]
     store.redis.expects(:hset).at_least_once.raises(::Redis::BaseError)
     @progress.tick
     @progress.complete
@@ -234,47 +242,32 @@ class ProgressrusTest < Minitest::Test
   end
 
 
-  def test_default_scope_on_first
-    Progressrus.stores.clear
+  def test_default_scope_redis_store
+    Progressrus.clear_stores
 
-    mysql = mock()
-    redis = mock()
+    mysql = mock_store
+    redis = mock_store
 
-    Progressrus.stores << mysql
-    Progressrus.stores << redis
-
-    mysql.expects(:scope).once
-    redis.expects(:scope).never
-
-    Progressrus.scope(["oemg"])
-  end
-
-  def test_support_scope_last
-    Progressrus.stores.clear
-
-    mysql = mock()
-    redis = mock()
-
-    Progressrus.stores << mysql
-    Progressrus.stores << redis
+    Progressrus.add_store(:mysql, mysql)
+    Progressrus.add_store(:redis, redis)
 
     mysql.expects(:scope).never
     redis.expects(:scope).once
 
-    Progressrus.scope(["oemg"], store: :last)
+    Progressrus.scope(["oemg"])
   end
 
   def test_support_scope_by_name
-    Progressrus.stores.clear
+    Progressrus.clear_stores
 
-    mysql = mock()
-    redis = mock()
+    mysql = mock_store
+    redis = mock_store
 
     mysql.stubs(:name).returns(:mysql)
     redis.stubs(:name).returns(:redis)
 
-    Progressrus.stores << mysql
-    Progressrus.stores << redis
+    Progressrus.add_store(:mysql, mysql)
+    Progressrus.add_store(:redis, redis)
 
     mysql.expects(:scope).never
     redis.expects(:scope).once
@@ -426,5 +419,11 @@ class ProgressrusTest < Minitest::Test
     )
 
     refute progress.expired?(now: time)
+  end
+
+  private
+
+  def mock_store
+    Progressrus::Store::Base.new
   end
 end
