@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Progressrus
-  VERSION = "0.1.7"
+  VERSION = '0.1.8'
 end
