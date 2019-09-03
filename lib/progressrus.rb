@@ -2,29 +2,65 @@ require 'json'
 require 'securerandom'
 require 'redis'
 require 'time'
-require_relative "progressrus/store"
 require_relative "progressrus/store/base"
 require_relative "progressrus/store/redis"
 require_relative "progressrus/store/progressbar"
 require_relative "progressrus/core_ext/enumerable"
 
 class Progressrus
+  @mutex = Mutex.new
+
+  class InvalidStoreError < StandardError
+    def initialize
+      message = <<~MSG
+        The store needs to implement `persist`, `scope`, `find` and `flush`
+        We have a base class that your store can inherit from:
+          Progressrus::Store::Base
+      MSG
+      super(message)
+    end
+  end
+
   class << self
-    def stores
-      @@stores ||= Store.new(Store::Redis.new(::Redis.new(host: ENV["PROGRESSRUS_REDIS_HOST"] || "localhost")))
+    attr_reader :mutex
+
+    def clear_stores
+      @stores = {}
     end
 
-    def scope(scope, store: :first)
-      stores.find_by_name(store).scope(scope)
+    def stores
+      mutex.synchronize do
+        @stores ||= {
+          redis: Store::Redis.new(::Redis.new(host: ENV["PROGRESSRUS_REDIS_HOST"] || "localhost"))
+        }
+      end
+    end
+
+    def add_store(name, store)
+      validate_store!(store)
+      stores[name] = store
+    end
+
+    def scope(scope, store: :redis)
+      stores[store].scope(scope)
     end
     alias_method :all, :scope
 
-    def find(scope, id, store: :first)
-      stores.find_by_name(store).find(scope, id)
+    def find(scope, id, store: :redis)
+      stores[store].find(scope, id)
     end
 
-    def flush(scope, id = nil, store: :first)
-      stores.find_by_name(store).flush(scope, id)
+    def flush(scope, id = nil, store: :redis)
+      stores[store].flush(scope, id)
+    end
+
+    private
+
+    def validate_store!(store)
+      valid = Store::Base.new.public_methods(false).all? do |method|
+        store.respond_to?(method)
+      end
+      raise InvalidStoreError unless valid
     end
   end
 
@@ -84,7 +120,7 @@ class Progressrus
   end
 
   def flush
-    stores.each { |store| store.flush(scope, id) }
+    stores.each_value { |store| store.flush(scope, id) }
   end
 
   def status
@@ -161,7 +197,7 @@ class Progressrus
   private
 
   def persist(force: false)
-    stores.each do |store|
+    stores.each_value do |store|
       begin
         store.persist(self, force: force, expires_at: expires_at)
       rescue Progressrus::Store::BackendError

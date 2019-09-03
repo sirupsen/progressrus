@@ -6,7 +6,7 @@ class IntegrationTest < Minitest::Test
   end
 
   def teardown
-    Progressrus.stores.first.flush(@progress.scope)
+    Progressrus.stores[:redis].flush(@progress.scope)
   end
 
   def test_create_tick_and_see_status_in_redis
