@@ -40,6 +40,37 @@ class ProgressrusTest < Minitest::Test
     assert_equal 'Wally', progressrus.name
   end
 
+  def test_not_passing_stores_default_to_all_stores
+    progressrus = Progressrus.new(scope: ['walruses', 1])
+    assert_equal Progressrus.stores, progressrus.stores
+  end
+
+  def test_passing_stores
+    mysql = mock_store
+    Progressrus.add_store(:mysql, mysql)
+    progressrus = Progressrus.new(scope: ['walruses', 1], stores: :mysql)
+    assert_equal({ mysql: mysql }, progressrus.stores)
+  end
+
+  def test_passing_multiple_stores
+    Progressrus.clear_stores
+
+    mysql = mock_store
+    redis = mock_store
+
+    Progressrus.add_store(:mysql, mysql)
+    Progressrus.add_store(:redis, redis)
+
+    progressrus = Progressrus.new(scope: ['walruses', 1], stores: %i(mysql redis))
+    assert_equal({ mysql: mysql, redis: redis }, progressrus.stores)
+  end
+
+  def test_passing_non_existing_store_raises_error
+    assert_raises(Progressrus::StoreNotFoundError) do
+      Progressrus.new(scope: ['walruses', 1], stores: :not_found)
+    end
+  end
+
   def test_initialize_without_name_should_use_id
     progressrus = Progressrus.new(id: 'oemg')
     assert_equal 'oemg', progressrus.name
