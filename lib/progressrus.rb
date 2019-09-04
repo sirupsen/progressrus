@@ -21,6 +21,16 @@ class Progressrus
     end
   end
 
+  class StoreNotFoundError < StandardError
+    def initialize(store)
+      message = <<~MSG
+        The store `#{store}` does not exists.
+        Available stores: #{Progressrus.stores.keys.join(', ')}
+      MSG
+      super(message)
+    end
+  end
+
   class << self
     attr_reader :mutex
 
@@ -74,7 +84,7 @@ class Progressrus
   attr_writer :params
 
   def initialize(scope: "progressrus", total: nil, name: nil,
-    id: SecureRandom.uuid, params: {}, stores: Progressrus.stores,
+    id: SecureRandom.uuid, params: {}, stores: nil,
     completed_at: nil, started_at: nil, count: 0, failed_at: nil,
     error_count: 0, persist: false, expires_at: nil, persisted: false)
 
@@ -85,7 +95,7 @@ class Progressrus
     @total        = total
     @id           = id
     @params       = params
-    @stores       = stores
+    @stores       = extract_stores(stores)
     @count        = count
     @error_count  = error_count
 
@@ -195,6 +205,17 @@ class Progressrus
   end
 
   private
+
+  def extract_stores(stores)
+    return Progressrus.stores unless stores
+
+    Array(stores).each_with_object({}) do |store, hash|
+      stored_found = Progressrus.stores[store]
+      raise StoreNotFoundError, store unless stored_found
+
+      hash[store] = stored_found
+    end
+  end
 
   def persist(force: false)
     stores.each_value do |store|
