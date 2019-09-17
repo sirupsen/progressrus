@@ -108,10 +108,10 @@ class Progressrus
     persist(force: true) if persist
   end
 
-  def tick(ticks = 1, now: Time.now)
+  def tick(ticks = 1, now: Time.now, force: false)
     @started_at ||= now if ticks >= 1
     @count += ticks
-    persist
+    persist(force: force)
   end
 
   def error(ticks = 1, now: Time.now)

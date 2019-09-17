@@ -81,6 +81,11 @@ class ProgressrusTest < Minitest::Test
     Progressrus.new(persist: true)
   end
 
+  def test_tick_accepts_force_argument
+    @progress.expects(:persist).with(force: true)
+    @progress.tick(force: true)
+  end
+
   def test_tick_should_set_started_at_if_not_already_set_and_tick_greater_than_zero
     @progress.tick
     assert @progress.started_at
