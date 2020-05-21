@@ -1,5 +1,5 @@
 module Enumerable
-  def with_progress(**args, &block)
+  def with_progress(args = {}, &block)
     if block_given?
       progresser = progress(args)
       begin
@@ -25,7 +25,7 @@ module Enumerable
       # Lazily read the size, for some enumerable this may be quite expensive and
       # using this method should come with a warning in the documentation.
       total = self.size unless args[:total]
-      @progress = Progressrus.new({total: total}.merge(args))
+      @progress = Progressrus.new(total: total, **args)
     end
   end
 end
