@@ -31,7 +31,7 @@ class Progressrus
       def scope(scope)
         scope = redis.hgetall(key(scope))
         scope.each_pair { |id, value|
-          scope[id] = Progressrus.new(deserialize(value))
+          scope[id] = Progressrus.new(**deserialize(value))
         }
       rescue *BACKEND_EXCEPTIONS => e
         raise Progressrus::Store::BackendError.new(e)
@@ -41,7 +41,7 @@ class Progressrus
         value = redis.hget(key(scope), id)
         return unless value
 
-        Progressrus.new(deserialize(value))
+        Progressrus.new(**deserialize(value))
       rescue *BACKEND_EXCEPTIONS => e
         raise Progressrus::Store::BackendError.new(e)
       end
