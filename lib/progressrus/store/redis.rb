@@ -17,9 +17,9 @@ class Progressrus
         if outdated?(progress) || force
           key_for_scope = key(progress.scope)
 
-          redis.pipelined do
-            redis.hset(key_for_scope, progress.id, progress.to_serializeable.to_json)
-            redis.expireat(key_for_scope, expires_at.to_i) if expires_at
+          redis.pipelined do |pipeline|
+            pipeline.hset(key_for_scope, progress.id, progress.to_serializeable.to_json)
+            pipeline.expireat(key_for_scope, expires_at.to_i) if expires_at
           end
 
           @persisted_ats[progress.scope][progress.id] = now
