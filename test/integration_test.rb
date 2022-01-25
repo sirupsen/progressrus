@@ -44,7 +44,7 @@ class IntegrationTest < Minitest::Test
   end
 
   def test_tick_on_enumerable
-    a = (0..10)
+    a = (0..10).to_a
     b = a.with_progress(scope: "walrus").map(&:to_i)
 
     ticks = Progressrus.scope(["walrus"]).values
@@ -57,7 +57,7 @@ class IntegrationTest < Minitest::Test
   end
 
   def test_tick_on_enumerable_calls_fail_on_exception
-    a = (0..10)
+    a = (0..10).to_a
 
     assert_raises ArgumentError do
       a.with_progress(scope: "walrus").each do
