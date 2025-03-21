@@ -2,7 +2,7 @@ require 'coveralls'
 Coveralls.wear!
 
 require 'minitest/autorun'
-require "mocha/setup"
+require 'mocha/minitest'
 require 'pry'
 require 'byebug'
 require 'pry-byebug'
