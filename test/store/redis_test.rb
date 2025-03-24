@@ -7,7 +7,7 @@ class RedisStoreTest < Minitest::Test
     end
   end
   def setup
-  	@scope = ["walrus", "1234"]
+    @scope = ["walrus", "1234"]
     @progress = Progressrus.new(
       scope: @scope,
       id: "oemg",
@@ -15,7 +15,7 @@ class RedisStoreTest < Minitest::Test
       name: "oemg-name"
     )
 
-  	@another_progress = Progressrus.new(
+    @another_progress = Progressrus.new(
       scope: @scope,
       id: "oemg-two",
       total: 100,
@@ -38,16 +38,16 @@ class RedisStoreTest < Minitest::Test
   end
 
   def test_persist_should_set_key_value_if_outdated
-  	@store.persist(@progress)
+    @store.persist(@progress)
 
-  	assert_equal 'oemg', @store.find(['walrus', '1234'], 'oemg').id
+    assert_equal 'oemg', @store.find(['walrus', '1234'], 'oemg').id
   end
 
   def test_persist_should_not_set_key_value_if_not_outdated
-  	@store.redis.expects(:hset).once
+    Redis::PipelinedConnection.any_instance.expects(:hset).once
 
-  	@store.persist(@progress)
-  	@store.persist(@progress)
+    @store.persist(@progress)
+    @store.persist(@progress)
   end
 
   def test_scope_should_return_progressruses_indexed_by_id
@@ -62,7 +62,7 @@ class RedisStoreTest < Minitest::Test
   end
 
   def test_scope_should_return_an_empty_hash_if_nothing_is_found
-  	assert_equal({}, @store.scope(@scope))
+    assert_equal({}, @store.scope(@scope))
   end
 
   def test_find_should_return_a_single_progressrus_for_scope_and_id
@@ -73,41 +73,41 @@ class RedisStoreTest < Minitest::Test
   end
 
   def test_find_should_return_nil_if_nothing_is_found
-  	assert_nil @store.find(@scope, 'oemg')
+    assert_nil @store.find(@scope, 'oemg')
   end
 
   def test_flush_should_delete_by_scope
-  	@store.persist(@progress)
-  	@store.persist(@another_progress)
+    @store.persist(@progress)
+    @store.persist(@another_progress)
 
-  	@store.flush(@scope)
+    @store.flush(@scope)
 
-  	assert_equal({}, @store.scope(@scope))
+    assert_equal({}, @store.scope(@scope))
   end
 
   def test_flush_should_delete_by_scope_and_id
-	  @store.persist(@progress)
-  	@store.persist(@another_progress)
+    @store.persist(@progress)
+    @store.persist(@another_progress)
 
-	  @store.flush(@scope, 'oemg')
+    @store.flush(@scope, 'oemg')
 
-  	assert_nil @store.find(@scope, 'oemg')
-  	assert @store.find(@scope, 'oemg-two')
+    assert_nil @store.find(@scope, 'oemg')
+    assert @store.find(@scope, 'oemg-two')
   end
 
   def test_initializes_name_to_redis
-  	assert_equal :redis, @store.name
+    assert_equal :redis, @store.name
   end
 
   def test_persist_should_not_write_by_default
-    @store.redis.expects(:hset).once
+    Redis::PipelinedConnection.any_instance.expects(:hset).once
 
     @store.persist(@progress)
     @store.persist(@progress)
   end
 
   def test_persist_should_write_if_forced
-    @store.redis.expects(:hset).twice
+    Redis::PipelinedConnection.any_instance.expects(:hset).twice
 
     @store.persist(@progress)
     @store.persist(@progress, force: true)

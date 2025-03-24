@@ -247,8 +247,7 @@ class ProgressrusTest < Minitest::Test
   end
 
   def test_tick_and_complete_dont_raise_if_store_is_unavailable
-    store = Progressrus.stores[:redis]
-    store.redis.expects(:hset).at_least_once.raises(::Redis::BaseError)
+    Redis::PipelinedConnection.any_instance.expects(:hset).at_least_once.raises(::Redis::BaseError)
     @progress.tick
     @progress.complete
   end
