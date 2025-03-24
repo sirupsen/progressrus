@@ -17,9 +17,11 @@ class Progressrus
         if outdated?(progress) || force
           key_for_scope = key(progress.scope)
 
-          redis.pipelined do |pipeline|
-            pipeline.hset(key_for_scope, progress.id, progress.to_serializeable.to_json)
-            pipeline.expireat(key_for_scope, expires_at.to_i) if expires_at
+          redis.with do |client|
+            client.pipelined do |pipeline|
+              pipeline.hset(key_for_scope, progress.id, progress.to_serializeable.to_json)
+              pipeline.expireat(key_for_scope, expires_at.to_i) if expires_at
+            end
           end
 
           @persisted_ats[progress.scope][progress.id] = now
@@ -29,7 +31,9 @@ class Progressrus
       end
 
       def scope(scope)
-        scope = redis.hgetall(key(scope))
+        scope = redis.with do |client|
+          client.hgetall(key(scope))
+        end
         scope.each_pair { |id, value|
           scope[id] = Progressrus.new(**deserialize(value))
         }
@@ -38,7 +42,7 @@ class Progressrus
       end
 
       def find(scope, id)
-        value = redis.hget(key(scope), id)
+        value = redis.with { |client| client.hget(key(scope), id) }
         return unless value
 
         Progressrus.new(**deserialize(value))
@@ -47,10 +51,12 @@ class Progressrus
       end
 
       def flush(scope, id = nil)
-        if id
-          redis.hdel(key(scope), id)
-        else
-          redis.del(key(scope))
+        redis.with do |client|
+          if id
+            client.hdel(key(scope), id)
+          else
+            client.del(key(scope))
+          end
         end
       rescue *BACKEND_EXCEPTIONS => e
         raise Progressrus::Store::BackendError.new(e)
